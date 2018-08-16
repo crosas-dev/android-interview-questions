@@ -273,7 +273,7 @@
 
 * Difference between method overloading and overriding.
         <p align="center">
-        <img alt="Overloading and Overriding" src="https://github.com/codeshef/android-interview-questions/blob/master/assets/overloading-vs-overriding.png">
+        <img alt="Overloading and Overriding" src="https://github.com/codeshef/android-interview-questions/blob/master/assets/overloading-vs-overriding.png?raw=true">
         </p>
     - Overloading happens at compile-time while Overriding happens at runtime: The binding of overloaded method call to its definition has happens at compile-time however binding of overridden method call to its definition happens at runtime.
     More info on static vs. dynamic binding: [StackOverflow](https://stackoverflow.com/questions/19017258/static-vs-dynamic-binding-in-java).
@@ -1019,152 +1019,485 @@ app:layout_constraintBottom_toBottomOf="@+id/view1"
 #### Long-running Operations
 
 * How would you perform a long-running operation in an application?
-
+	- AsyncTask. Easy to implement and returns results on the main thread. There are some issues with AsyncTask, for example, they are not aware of the activity or fragment lifecycle and so it is the programmer's responsibility to handle the AsyncTasks behaviour when the activity is destroyed. This means that they are not the best option for long running operations and also, if the app is in the background and the app is terminated by Android, your background processing is also terminated.
+	- IntentService. This is the defacto choice for long running processing on Android, a good example would be to upload or download large files. The upload and download may continue even if the user exits the app and you certainly do not want to block the user from being able to use the app while these tasks are going on.
+	- Loader. Loaders were introduced in Android Honeycomb and are part of the compatibility library. They are aware of Fragment and Activity lifecycle and can even cache loaded data. I would like to bring attention to AsyncTaskLoaders as they solve a lot of problems that are inherent to AsyncTask.
+	- JobScheduler. JobScheduler was released in API 21 and as yet there is not official compatibility version from Google (Evan Tatarka has filled the void with JobSchedulerCompat). It is important to remember that there is no guarantee that your code will be executed as soon as these conditions are met or the order of the execution.
+	- CountDownTimer. This is very easy to use however it is context sensitive, so if you exit your Activity or Fragment, you need to clean this up by cancelling it. There really is nothing Asynchronous about CountDownTimer. If you look at it’s source, it simply posts delayed messages on a Handler which means that it will run on whatever thread you launch it from and onTick() and onFinish() will be executed on whatever thread you run the CountDownTimer from so you can do UI updates in it. For this reason, it’s also important to not do any heavy operations onTick() or onFinish(). The reason CountDownTimer is included in the list is because using this class does not block the user from using the app even when the CountDownTimer is initialised from the main thread, effectively giving a asynchronous effect. Also keep in mind, if your update intervals are small and your processing is time consuming, you can have a back-pressure problem which will result in blocking of your execution thread.
+	- Java Threads or Android HandlerThread. Java Threads are rather straight forward to implement. However, they are best to avoid in Android. I have seen them used in all sorts of instances however they are limiting as Android doesn’t really allow UI updates on the background thread. A better option may be to use AsyncTask.
+	- FutureTask. FutureTask performs asynchronous processing, however, if the result is not ready yet or processing has not complete, calling get() will be block the thread.
+	- Java Timer / ScheduledThreadPoolExecutor. An example of using Java Timer to do something after 5 seconds. These can be used to schedule some processing on a background thread. There are other ways to handle the same in Android, you could use a Handler with postDelayed or Handler with sendMessageDelayed() and the handler can run on a background thread as shown above. Also, keep in mind that since this API is not aware of the Android lifecycle, any hard reference to an Activity, Fragment or View in here is a possible memory leak.
 * Why should you avoid to run non-ui code on the main thread?
+	- Because if that thread hogs it prevents user interaction (for more than 5 seconds), it causes Android to throw up the infamous Android Not Responsive (ANR) error.
 
 * What is ANR? How can the ANR be prevented?
+	- When the UI thread of an Android app is blocked for too long (5 seconds), an "Application Not Responding" (ANR) error is triggered. If the app is in the foreground, the system displays a dialog to the user. The ANR dialog gives the user the opportunity to force quit the app. To avoid it, you must identify the places in your code where the app’s main thread is busy for more than 5 seconds. Look for the suspicious use cases in your app and try to reproduce the ANR.
 
 * What is an `AsyncTask`?
+	- AsyncTask is an abstract Android class which helps the Android applications to handle the Main UI thread in efficient way. AsyncTask class allows us to perform long lasting tasks/background operations and show the result on the UI thread without affecting the main thread.
 
 * What are the problems in asynctask?
+	- When the device configuration changes, the entire Activity is destroyed and recreated. When the Activity is restarted, your AsyncTask’s reference to the Activity is invalid, so onPostExecute() will have no effect on the new Activity.
+	- It is a misconception to think that just because the Activity that originally spawned the AsyncTask is dead, the AsyncTask is as well. It will continue running on its merry way even if you exit the entire application. The only way that an AsyncTask finishes early is if it is canceled via `AsyncTask.cancel()`. This means that you have to manage the cancellation of AsyncTasks yourself; otherwise you run the risk of bogging down your app with unnecessary background tasks, or of leaking memory.
+	- There’s a misconception about what AsyncTask.cancel() actually does. It does not kill the Thread with no regard for the consequences! All it does is set the AsyncTask to a “cancelled” state. As for mayInterruptIfRunning – all it does is send an interrupt() to the running Thread. In the case that your Thread is uninterruptible, then it won’t stop the Thread at all.
 
 * When would you use java thread instead of an asynctask?
+	- Use AsyncTask for:
+		- Simple network operations which do not require downloading a lot of data
+		- Disk-bound tasks that might take more than a few milliseconds
+
+	- Use Java threads for:
+		- Network operations which involve moderate to large amounts of data (either uploading or downloading)
+		- High-CPU tasks which need to be run in the background
+		- Any task where you want to control the CPU usage relative to the GUI thread
 
 * What is a `Loader`?
+	- A `Loader` make it easy to asynchronously load data in an activity or fragment They are available to every Activity and Fragment. They provide asynchronous loading of data. They monitor the source of their data and deliver new results when the content changes. They automatically reconnect to the last loader's cursor when being recreated after a configuration change. Thus, they don't need to re-query their data.
 
 * What is the relationship between the life cycle of an `AsyncTask` and an `Activity`? What problems can this result in? How can these problems be avoided?
+	- An `AsyncTask` is not tied to the life cycle of the `Activity` that contains it. So, for example, if you start an `AsyncTask` inside an `Activity` and the user rotates the device, the `Activity` will be destroyed (and a new `Activity` instance will be created) but the `AsyncTask` will not die but instead goes on living until it completes. 
+	- Then, when the `AsyncTask` does complete, rather than updating the UI of the new `Activity`, it updates the former instance of the `Activity` (i.e., the one in which it was created but that is not displayed anymore!). This can lead to an Exception (of the type `java.lang.IllegalArgumentException`: View not attached to window manager if you use, for instance, `findViewById` to retrieve a view inside the `Activity`).
+	- There’s also the potential for this to result in a memory leak since the AsyncTask maintains a reference to the `Activity`, which prevents the `Activity` from being garbage collected as long as the `AsyncTask` remains alive.
 
 * Explain `Looper`, `Handler` and `HandlerThread`. [Mindorks](https://blog.mindorks.com/android-core-looper-handler-and-handlerthread-bd54d69fe91a)
+	- `Looper` is a worker, that serves a `MessageQueue` for a current thread.
+	- `Handler` is a class with 2 basic functions: post tasks to the MessageQueue and process them. By default, Handler is implicitly associated with thread it was instantiated from via Looper, but you can tie it to another thread by explicitly providing its Looper at the constructor call as well. 
+	- `HandlerThread` is a derivation of `Thread`. The only significant difference between `HandlerThread` and `Thread` you should turn your attention to is that the first one incorporates `Looper`, `Thread` and `MessageQueue`.
+
+	![HandlerThread](https://s.nikitaog.me/android/Looper.png)
 
 #### Working With Multimedia Content
 
 * How do you handle bitmaps in Android as it takes too much memory?
+	- A memory cache offers fast access to bitmaps at the cost of taking up valuable application memory. The LruCache class is particularly well suited to the task of caching bitmaps, keeping recently referenced objects in a strong referenced LinkedHashMap and evicting the least recently used member before the cache exceeds its designated size.
+	- If you just want to cache bitmaps off the heap, a simpler solution is to use parcel memory. Parcel uses the native malloc heap. The bitmap will be opaque and there is no way to access the data while it is parceled. But if keeping a (few) large bitmap(s) cached away from the heap is your only goal, it's the simplest solution.
 
 * What is the difference between a regular `Bitmap` and a nine-patch image?
+	- It is one of a resizable bitmap resource which is being used as backgrounds or other images on the device. The NinePatch class allows drawing a bitmap in nine sections. The four corners are unscaled; the middle of the image is scaled in both axes, the four edges are scaled into one axis.
 
 * Tell about the `Bitmap` pool. [Mindorks](https://blog.mindorks.com/how-to-use-bitmap-pool-in-android-56c71a55533c)
-
+	- From API 11 onwards, you can pass a bitmap to be reused in the BitmapFactory Options. You will need to implement a bitmap pool to make it easy to manage your bitmaps. Pooling currently only works for Bitmaps that are exactly the same size. For this reason you need to be careful when you use it and/or use different pools for different size bitmaps. 
+	- It may also be worth while to know the difference between bitmap ARGB_8888 and RGB_565. ARGB_8888 has 32-bit color which also supports alpha transparencies. RGB_565 does not support alpha transparencies and is 16-bit color. 
 * How to play sounds in Android? [Vogella](http://www.vogella.com/tutorials/AndroidMedia/article.html)
+	- Android gives you a couple of options to do so:
+		- The SoundPool is best for short sound clips (notifications sounds, sound effects in games).
+		- The MediaPlayer is better suited for larger sound files like songs.
 
 #### Data Saving
 
 * How to persist data in an Android app?
+	- It depends on your specific needs, such as how much space your data requires, what kind of data you need to store, and whether the data should be private to your app or accessible to other apps and the user.
+		- Internal file storage: Store app-private files on the device file system. Files saved to the internal storage are private to your app, and other apps cannot access them (nor can the user, unless they have root access). 
+		- External file storage: Store files on the shared external file system. This is usually for shared user files, such as photos. Files saved to the external storage are world-readable and can be modified by the user when they enable USB mass storage to transfer files on a computer.
+		- Shared preferences: Store private primitive data in key-value pairs. The key-value pairs are written to XML files that persist across user sessions, even if your app is killed. You can manually specify a name for the file or use per-activity files to save your data.
+		- Databases: Store structured data in a private database. Any database you create is accessible only by your app. However, instead of using SQLite APIs directly, we recommend that you create and interact with your databases with the Room persistence library. The Room library provides an object-mapping abstraction layer that allows fluent database access while harnessing the full power of SQLite.
 
 * What is ORM? How does it work?
+	- Object-relational mapping (ORM) is a programming technique in which a metadata descriptor is used to connect object code to a relational database. Object code is written in object-oriented programming (OOP) languages such as Java. ORM converts data between type systems that are unable to coexist within relational databases and OOP languages.
+	- Android Room provides an abstraction layer over SQLite to allow fluent database access while harnessing the full power of SQLite. There are 3 major components in Room:
+		- Database: Contains the database holder and serves as the main access point for the underlying connection to your app's persisted, relational data. The class that's annotated with @Database should satisfy the following conditions:
+			- Be an abstract class that extends RoomDatabase.
+			- Include the list of entities associated with the database within the annotation.
+			- Contain an abstract method that has 0 arguments and returns the class that is annotated with @Dao. At runtime, you can acquire an instance of Database by calling Room.databaseBuilder() or Room.inMemoryDatabaseBuilder().
+
+        ```java
+			@Database(entities = {User.class}, version = 1)
+			public abstract class AppDatabase extends RoomDatabase {
+			    public abstract UserDao userDao();
+			}
+        ```
+		- Entity: Represents a table within the database.
+        ```java
+			@Entity
+			public class User {
+			    @PrimaryKey
+			    private int uid;
+			
+			    @ColumnInfo(name = "first_name")
+			    private String firstName;
+			
+			    @ColumnInfo(name = "last_name")
+			    private String lastName;
+			
+			    // Getters and setters are ignored for brevity,
+			    // but they're required for Room to work.
+			}
+        ```
+		- DAO: Contains the methods used for accessing the database.
+        ```java
+			@Dao
+			public interface UserDao {
+			    @Query("SELECT * FROM user")
+			    List<User> getAll();
+			
+			    @Query("SELECT * FROM user WHERE uid IN (:userIds)")
+			    List<User> loadAllByIds(int[] userIds);
+			
+			    @Query("SELECT * FROM user WHERE first_name LIKE :first AND "
+			           + "last_name LIKE :last LIMIT 1")
+			    User findByName(String first, String last);
+			
+			    @Insert
+			    void insertAll(User... users);
+			
+			    @Delete
+			    void delete(User user);
+			}
+        ```
+	- After creating the files above, you get an instance of the created database using the following code:
+	```java
+	AppDatabase db = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, "database-name").build();
+	```
 
 * How would you preserve `Activity` state during a screen rotation? [StackOverflow](https://stackoverflow.com/questions/3915952/how-to-save-state-during-orientation-change-in-android-if-the-state-is-made-of-m)
-
+	- When orientation changes, Android destroys your current activity and creates a new activity again. And whenever Android destroys and recreates your Activity for orientation change, it calls onSaveInstanceState() before destroying and calls onCreate() after recreating. Whatever you save in the bundle in onSaveInstanceState, you can get back from the onCreate() parameter.
 * What are different ways to store data in your Android app?
 
 #### Look and Feel
 
 * What is a `Spannable`?
+	- Spannable is a Spanned, adding in the ability to modify the spans (to add or remove formatting), but not to modify the text itself. This is the interface for text to which markup objects can be attached and detached. Not all Spannable classes have mutable text; see Editable for that.
 
 #### Memory Optimizations
 
 * What is the `onTrimMemory()` method?
+	- One way of managing memory in response to system events is the onTrimMemory() method. It's called when the operating system has determined that it is a good time for a process to trim unneeded memory from its process. This will happen for example when it goes in the background and there is not enough memory to keep as many background processes running as desired.
 
 * How does the OutOfMemory happens?
+	- The reasons why JVM may throw OutOfMemoryError, could be:
+		- Java heap space: when trying to allocate an object or an array larger than maximum continuous free block in either of heap generations;
+		- GC overhead limit exceeded: when the proportion of time JVM spends doing garbage collection becomes too high (see GCTimeLimit, GCHeapFreeLimit);
+		- PermGen space (before Java 8) or Metaspace (since Java 8): when the amount of class metadata exceeds MaxPermSize or MaxMetaspaceSize;
+		- Requested array size exceeds VM limit: when trying to allocate an array with length larger than Integer.MAX_VALUE - 2;
+		- Unable to create new native thread: when reaching the OS limit of user processes (see ulimit -u) or when there is not enough virtual memory to reserve space for thread stack;
+		- Direct buffer memory: when the size of all direct ByteBuffers exceeds MaxDirectMemorySize or when there is no virtual memory available to satisfy direct buffer allocation;
+		- When JVM cannot allocate memory for its internal structures, either because run out of available virtual memory or because certain OS limit reached (e.g. maximum number of memory map areas);
+		- When JNI code failed to allocate some native resource;
+		- Etc. Not to mention that an application can throw OutOfMemoryError itself at any time just because a developer decides so.
 
 * How do you find memory leaks in Android applications? [Mindorks](https://mindorks.com/blog/detecting-and-fixing-memory-leaks-in-android)
+	- Android Studio has a handy tool for detecting memory leaks. If you suspect a piece of code in you app might leaks an Activity, you can do this. Dump Java Heap and use the Analyzer Tasks tool from  HPROF Viewer and Analyzer.
 
 #### Battery Life Optimizations
 
 * How to reduce battery usage in an android application? [Mindorks](https://blog.mindorks.com/battery-optimization-for-android-apps-f4ef6170ff70)
+	- Tips for improving battery usage in an android application:
+		- Reduce network calls as much as you can: Cache your data and retrieve it from the cache when required next time.
+		- Avoid wake lock as much as possible: A wake lock is a mechanism to indicate that your application needs to have the device stay on.
+		- Use AlarmManager carefully: Wrong use of AlarmManager can easily drain the battery.
+Batch the network calls: You should batch the network calls if possible so that you can prevent the device from waking every second.
+		- A Different logic for Mobile Data and Wifi: You should write different logic for mobile data and wifi as one logic may be optimized for mobile data and other may be optimized for wifi.
+		- Check all background processes: You should check all the background processes.
+		- Use GPS carefully: Do not use it frequently, use it only when actually required.
+		- Use JobScheduler: This is an API for scheduling various types of jobs against the framework that will be executed in your application’s own process. The framework will be intelligent about when you receive your callbacks and attempt to batch and defer them as much as possible. For backward compatibility use Evernote’s android-job library.
 
 * What is Doze? What about App Standby?
+	- Doze reduces battery consumption by deferring background CPU and network activity for apps when the device is unused for long periods of time.
+	- App Standby defers background network activity for apps with which the user has not recently interacted.
 
 * What is `overdraw`? [Developer Android](https://developer.android.com/topic/performance/rendering/overdraw.html)
+	- An app may draw the same pixel more than once within a single frame, an event called overdraw. Overdraw is usually unnecessary, and best eliminated. It manifests itself as a performance problem by wasting GPU time to render pixels that don't contribute to what the user sees on the screen. Overdraw refers to the system's drawing a pixel on the screen multiple times in a single frame of rendering. For example, if we have a bunch of stacked UI cards, each card hides a portion of the one below it.
 
 #### Supporting Different Screen Sizes
 
 * How did you support different types of resolutions?
+	- No matter what hardware profile you want to support first, you need to create a layout that is responsive to even small variations in screen size.
+	- For Different screen size, The following is a list of resource directories in an application that provides different layout designs for different screen sizes and different bitmap drawables for small, medium, high, and extra high density screens.
 
+
+```java
+	res/layout/my_layout.xml             // layout for normal screen size ("default")
+	res/layout-small/my_layout.xml       // layout for small screen size
+	res/layout-large/my_layout.xml       // layout for large screen size
+	res/layout-xlarge/my_layout.xml      // layout for extra large screen size
+	res/layout-xlarge-land/my_layout.xml // layout for extra large in landscape orientation
+
+	res/drawable-mdpi/my_icon.png        // bitmap for medium density
+	res/drawable-hdpi/my_icon.png        // bitmap for high density
+	res/drawable-xhdpi/my_icon.png       // bitmap for extra high density
+``` 
+	- The following code in the Manifest supports all dpis.
+```
+	<supports-screens android:smallScreens="true" 
+          android:normalScreens="true" 
+          android:largeScreens="true"
+          android:xlargeScreens="true"
+          android:anyDensity="true" />
+```
 #### Permissions
 
 * What are the different protection levels in permission?
+	- Android apps must request permission to access sensitive user data (such as contacts and SMS) or certain system features (such as the camera and internet access). Each permission is identified by a unique label. For example, an app that needs to send SMS messages must have the following line in the manifest:
+	
+	```java
+	<manifest ... >
+	    <uses-permission android:name="android.permission.SEND_SMS"/>
+	    ...
+	</manifest>
+	```
 
 #### Native Programming
 
 * What is the NDK and why is it useful?
+	- The NDK (Native Development Kit) is a tool that allows you to program in C/C++ for Android devices. It's intended to integrate with the SDK (it's described as a "companion tool") and used only for performance-critical portions of a project. The source code is compiled directly into machine code for the CPU (and not into an intermediate language, as with Java) then developers are able to get the best performance. It is also possible to use other developers’ libraries or your own if there is something that you absolutely need to use.
 
 * What is renderscript? [Mindorks](https://blog.mindorks.com/comparing-android-ndk-and-renderscript-1a718c01f6fe)
+	- RenderScript is a framework for running computationally intensive tasks at high performance on Android. RenderScript is primarily oriented for use with data-parallel computation, although serial computationally intensive workloads can benefit as well.
+	- The RenderScript runtime will parallelize work across all processors available on a device — such as multi-core CPUs and GPUs — allowing you to focus on expressing algorithms rather than scheduling work or load balancing. RenderScript is especially useful for applications performing image processing, computational photography, or computer vision.
+	- To begin with RenderScript, there are two main concepts you should understand:
+		- High-performance compute kernels are written in a C99-derived language.
+		- A Java API is used for managing the lifetime of RenderScript resources and controlling kernel execution.
+	- Advantages of NDK over RenderScript:
+		- C++ code can be shared between Android and IOS, whereas RenderScript code can be used only in Android.
+		- Easy integration with other C++ libraries.
+		- No API limitations, while Android provides only few API for renderScript.
+		- Debugging is easier.
+	- Advantages of RenderScript over NDK :
+		- RenderScript can use CPU, GPU, or other processing units, which leads to the huge performance benefit.
+		- Android architecture independence across x86, mips, and intel, where as NDK code needs to be compiled for each different architecture.
+		- Easier parallel execution.
+		- Best for image processing, computational photography, 3D rendering, or computer vision. 
 
 #### Android System Internal
 
 * What is the Dalvik Virtual Machine?
+	- Dalvik is a discontinued process virtual machine (VM) in Google's Android operating system (while its bytecode format is still used as a distribution format, but no longer at runtime in newer Android) that executes applications written for Android.
 
 * What is the difference JVM, DVM and ART?
+	- The Java virtual machine is a program whose purpose is to execute other programs. The JVM has two primary functions: to allow Java programs to run on any device or operating system (known as the "Write once, run anywhere" principle), and to manage and optimize program memory. 
+	- The Dalvik Virtual Machine (DVM) is an android virtual machine optimized for mobile devices. It optimizes the virtual machine for memory, battery life and performance.
+	- Android runtime (ART) is the managed runtime used by applications and some system services on Android. ART and its predecessor Dalvik were originally created specifically for the Android project. ART as the runtime executes the Dalvik Executable format and Dex bytecode specification.
+	- Benefits of ART :
+		- Apps run faster as DEX bytecode translation done during installation.
+		- Reduces startup time of applications as native code is directly executed.
+		- Improves battery performance as power utilized to interpreted byte codes line by line is saved.
+		- Improved garbage collector.
+		- Improved developer tool.
 
 * What are the differences between Dalvik and ART?
 
 * What is DEX?
+	- Android programs are compiled into .dex (Dalvik Executable) files, which are in turn zipped into a single .apk file on the device. .dex files can be created by automatically translating compiled applications written in the Java programming language.
 
 * Can you manually call the Garbage collector?
+	- You can call Garbage collector using:
+
+	```java
+	System.gc();
+	```
+	- But this does not mean that it'll be executed immediately. The JVM decides when to execute it. In general if the JVM is about to throw an OutOfMemoryError, calling System.gc() won't prevent it. Better investigate why you're leaking so much memory and clean it up along the way.
 
 #### Debugging and Programming Tools
 
 * What is ADB?
+	- Android Debug Bridge (adb) is a versatile command-line tool that lets you communicate with a device. You can invoke a client from a command-line terminal by issuing an adb command. A daemon (adbd), which runs commands on a device.
 
 * What is DDMS and what can you do with it?
+	- Android ships with a debugging tool called the Dalvik Debug Monitor Server (DDMS), which provides port-forwarding services, screen capture on the device, thread and heap information on the device, logcat, process, and radio state information, incoming call and SMS spoofing, location data spoofing, and more.
 
 * What is the StrictMode? [Mindorks](https://blog.mindorks.com/use-strictmode-to-find-things-you-did-by-accident-in-android-development-4cf0e7c8d997)
+	- StrictMode (android.os.StrictMode) is a developer tool which detects things you might be doing wrong by accident and brings them to your attention. Best practice in Android says “keeping the disk and network operations off from the main thread makes applications much smoother and more responsive”. So StrictMode is use to catch the coding issues such as disk I/O or network access on the application’s main thread i.e. UI thread.
 
 * What is Lint? What is it used for?
+	- The Android lint tool is a static code analysis tool that checks your Android project source files for potential bugs and optimization improvements for correctness, security, performance, usability, accessibility, and internationalization.
 
 #### Others
 
 * Why Bundle class is used for data passing and why cannot we use simple Map data structure
+	- All the IPC communication in the Android framework is based upon the concept of Binders. And the main mechanism to allow data marshalling between those processes is based on Parcels. A Parcel is an optimised, non-general purpose serialisation mechanism that Android employs for IPC. Contrary to Serializable objects, you should never use Parcels for any kind of persistence. Whenever you see a Bundle, you’re dealing with a Parcel under the hood.
 
-* How do you troubleshoot a crashing application?
+* How do you troubleshoot a crashing application? 
+	- Reading a stack trace. The first step to fix a crash is to identify the place where it happens. You can use the stack trace available in the report details if you are using Play Console or the output of the logcat tool. If you don’t have a stack trace available, you should locally reproduce the crash, either by manually testing the app or by reaching out to affected users, and reproduce it while using logcat.
 
 * Explain Android notification system?
+	- A notification is a message that Android displays outside your app's UI to provide the user with reminders, communication from other people, or other timely information from your app. Users can tap the notification to open your app or take an action directly from the notification. 
 
 * What is the difference between Serializable and Parcelable? Which is the best approach in Android?
 
 * Have you developed widgets? Describe. [Mindorks](https://blog.mindorks.com/android-widgets-ad3d166458d3)
 
 * What is AAPT?
+	- AAPT stands for Android Asset Packaging Tool. This tool is part of the SDK (and build system) and allows you to view, create, and update Zip-compatible archives (zip, jar, apk). It can also compile resources into binary assets.
 
 * What is the best way to update the screen periodically?
 
 * FlatBuffers vs JSON. [Mindorks](https://blog.mindorks.com/why-consider-flatbuffer-over-json-2e4aa8d4ed07)
+	- FlatBuffers are an efficient cross platform serialization library for C++, C#, C, Go, Java, JavaScript, PHP, and Python. They were originally created at Google for game development, and other performance-critical applications.
+		- Access to serialized data without parsing/unpacking — What sets FlatBuffers apart is that they represent hierarchical data in a flat binary buffer, in such a way that they can still be accessed directly without parsing and unpacking, while also still supporting data structure evolution (forwards/backwards compatibility).
+		- Memory efficiency and speed — The only memory needed to access your data is that of the buffer. It requires zero additional allocations (at least in C++. Other languages may vary). FlatBuffers are also suitable for use with mmap (or streaming), requiring only part of the buffer to be in memory. Access is close to the speed of raw struct access with only one extra indirection (a kind of vtable) to allow for format evolution and optional fields. FlatBuffers are aimed at projects where spending time and space (many memory allocations) to be able to access or construct serialized data is undesirable, such as in games, or any other performance sensitive applications. See the benchmarksfor details.
+		- Flexible — Having optional fields mean that not only do you get great forwards and backwards compatibility (increasingly important for long-lived games: you don’t have to update all data with each new version). It also means you have a lot of choice in what data you write and what data you don’t, and how you design data structures.
+		- Tiny code footprint — FlatBuffers require only small amounts of generated code, and just a single small header as the minimum dependency, which is very easy to integrate. Again, see the benchmark section for details.
+		- Strongly typed — Errors happen at compile time rather than manually having to write repetitive and error prone run-time checks. Useful code can be generated for you.
+		- Convenient to use — Generated C++ code allows for terse access and construction code. Then there’s the optional functionality for parsing schemas, and JSON-like text representations at runtime run efficiently if you need them (faster and more memory efficient than other JSON parsers).
+		- Cross platform code with no dependencies — C++ code will work with any recent gcc/clang and VS2010. Comes with build files for the tests & samples (Android .mk files, and cmake for all other platforms).
 
 * `HashMap`, `ArrayMap` and `SparseArray` [Mindorks](https://blog.mindorks.com/android-app-optimization-using-arraymap-and-sparsearray-f2b4e2e3dc47)
+	- HashMap is basically an Array of HashMap.Entry objects. (Entry is an inner class of HashMap.). When you query the HashMap for the value for a key, it comes in O(1) time.
+	- ArrayMap uses 2 arrays. The instance variables used internally are Object[ ] mArray to store the objects and the int[] mHashes to store hashCodes. When you query the ArrayMap the time complexity increases from O(1) to O(logN), but it’s memory efficient.
+	- SparseArray can be used to replace HashMap when the key is a primitive type. There are some variants for different key/value types, even though not all of them are publicly available. It's more memory efficient than Hashmap.
 
 * What are Annotations? [Mindorks](https://blog.mindorks.com/creating-custom-annotations-in-android-a855c5b43ed9), [Link](https://blog.mindorks.com/improve-your-android-coding-through-annotations-26b3273c137a)
-
+	- An annotation is a form of syntactic metadata that can be added to Java source code. Classes, methods, variables, parameters and packages may be annotated. Like Javadoc tags, Java annotations can be read from source files. Unlike Javadoc tags, Java annotations can also be embedded in and read from class files generated by the compiler. This allows annotations to be retained by Java VM at run-time and read via reflection.
+	
 * How to handle multi-touch in android [GitHub](https://arjun-sna.github.io/android/2016/07/20/multi-touch-android/)
+	- When multiple pointers touch the screen at the same time, the system generates the following touch events:
+		- ACTION_DOWN—For the first pointer that touches the screen. This starts the gesture. The pointer data for this pointer is always at index 0 in the MotionEvent.
+		- ACTION_POINTER_DOWN—For extra pointers that enter the screen beyond the first. The pointer data for this pointer is at the index returned by getActionIndex().
+		- ACTION_MOVE—A change has happened during a press gesture.
+		- ACTION_POINTER_UP—Sent when a non-primary pointer goes up.
+		- ACTION_UP—Sent when the last pointer leaves the screen.
+	- You keep track of individual pointers within a MotionEvent via each pointer's index and ID:
+		- Index: A MotionEvent effectively stores information about each pointer in an array. The index of a pointer is its position within this array. Most of the MotionEvent methods you use to interact with pointers take the pointer index as a parameter, not the pointer ID.
+		- ID: Each pointer also has an ID mapping that stays persistent across touch events to allow tracking an individual pointer across the entire gesture.
 
 * How to implement XML namespaces?
+	- Namespaces uniquely identify code/libraries. If I write an api that uses all the same names and such as the android api the only way to distinguish between my api and android api is to use the android namespace, or mine.
+	- To define an Android namespace. the xmlns:android attribute should always be set to "http://schemas.android.com/apk/res/android" in the XML file.
+	
+	```java
+	"xmlns:android="http://schemas.android.com/apk/res/android"
+	```
 
 * What is the support library? Why was it introduced?[MartianCraft](http://martiancraft.com/blog/2015/06/android-support-library/)
+	- The Android Support Library was originally released in 2011 as the Android Compatibility Library. It provides newer APIs for older releases. It's indeed a collection of libraries that can roughly be divided into two groups: compatibility and component libraries.
 
 * What is Android Data Binding? [Developer Android](https://developer.android.com/topic/libraries/data-binding/index.html)
+	- The Data Binding Library is a support library that allows you to bind UI components in your layouts to data sources in your app using a declarative format rather than programmatically. Layouts are often defined in activities with code that calls UI framework methods. For example, the code below calls findViewById() to find a TextView widget and bind it to the userName property of the viewModel variable:
+
+	```java
+	TextView textView = findViewById(R.id.sample_text);
+	textView.setText(viewModel.getUserName());
+	```
+	
+	- The following example shows how to use the Data Binding Library to assign text to the widget directly in the layout file. This removes the need to call any of the Java code shown above. Note the use of @{} syntax in the assignment expression:
+
+	```java
+	<TextView android:text="@{viewmodel.userName}" />
+	```
+	
+	- Binding components in the layout file lets you remove many UI framework calls in your activities, making them simpler and easier to maintain. This can also improve your app's performance and help prevent memory leaks and null pointer exceptions.
 
 * What are Android Architecture Components? [Developer Android](https://developer.android.com/topic/libraries/architecture/index.html)
+	- Android architecture components are part of Android Jetpack. They are a collection of libraries that help you design robust, testable, and maintainable apps. Start with classes for managing your UI component lifecycle and handling data persistence.
+		- Manage your app's lifecycle with ease. New lifecycle-aware components help you manage your activity and fragment lifecycles. Survive configuration changes, avoid memory leaks and easily load data into your UI.
+		- Use LiveData to build data objects that notify views when the underlying database changes.
+		- ViewModel Stores UI-related data that isn't destroyed on app rotations.
+		- Room is an a SQLite object mapping library. Use it to Avoid boilerplate code and easily convert SQLite table data to Java objects. Room provides compile time checks of SQLite statements and can return RxJava, Flowable and LiveData observables.
 
 * How to implement search using RxJava operators? [Mindorks](https://blog.mindorks.com/implement-search-using-rxjava-operators-c8882b64fe1d)
+	- First of all, you will have to make the SearchView observable. Let’s make the SearchView observable by using the PublishSubject. I am using the Android SearchView. The view can be anything like EditText. It is just that you will have to make that view observable by implementing the text change listener.
 
+	```java
+	public class RxSearchObservable {
+	
+	    public static Observable<String> fromView(SearchView searchView) {
+	
+	        final PublishSubject<String> subject = PublishSubject.create();
+	
+	        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+	            @Override
+	            public boolean onQueryTextSubmit(String s) {
+	                subject.onComplete();
+	                return true;
+	            }
+	
+	            @Override
+	            public boolean onQueryTextChange(String text) {
+	                subject.onNext(text);
+	                return true;
+	            }
+	        });
+	
+	        return subject;
+	    }
+	}
+	```
+
+	- Then, on that SearchView observable, you will have to apply all the operators like below:
+
+	```java
+		RxSearchObservable.fromView(searchView)
+			.debounce(300, TimeUnit.MILLISECONDS)
+			.filter(new Predicate<String>() {
+				@Override
+             public boolean test(String text) throws Exception {
+             		if (text.isEmpty()) {
+                 	return false;
+                 } else {
+                 	return true;
+                 }
+				}
+         	})
+			.distinctUntilChanged()
+			.switchMap(new Function<String, ObservableSource<String>>() {
+				@Override
+             public ObservableSource<String> apply(String query) throws Exception {
+             		return dataFromNetwork(query);
+             }
+          })
+          .subscribeOn(Schedulers.io())
+          .observeOn(AndroidSchedulers.mainThread())
+          .subscribe(new Consumer<String>() {
+          	@Override
+             public void accept(String result) throws Exception {
+             		textViewResult.setText(result);
+				}
+			});	
+	```
+
+	- Now, it’s time to learn why these operators are being used and how they work in combination.
+		- Debounce: Here, the debounce operator is used with a time constant. The debounce operator handles the case when the user types “a”, “ab”, “abc”, in a very short time. So there will be too much network calls. But the user is finally interested in the result of the search “abc”. So, you must discard the results of “a” and “ab”. Ideally, there should be no network calls for “a” and “ab” as the user typed those in very short time. So, the debounce operator comes to the rescue. The debounce will wait for the provided time for doing anything, if any other search query comes in between that time, it will ignore the previous item and start waiting for that time again with the new search query. If nothing new comes in that given constant time, it will proceed with that search query for further processing. So, debounce only emit an item from an Observable if a particular timespan has passed without it emitting an another item.
+		- Filter: The filter operator is used to filter the unwanted string like empty string in this case to avoid the unnecessary network call.
+		- DistinctUntilChanged: The distinctUntilChanged operator is used to avoid the duplicate network calls. Let say the last on-going search query was “abc” and the user deleted “c” and again typed “c”. So again it’s “abc”. So if the network call is already going on with the search query “abc”, it will not make the duplicate call again with the search query “abc”. So, distinctUntilChanged suppress duplicate consecutive items emitted by the source Observable.
+		- SwitchMap: Here, the switchMap operator is used to avoid the network call results which are not needed more for displaying to the user. Let say the last search query was “ab” and there is an ongoing network call for “ab” and the user typed “abc”. Then you are no more interested in the result of “ab”. You are only interested in the result of “abc”. So, the switchMap comes to the rescue. It only provides the result for the last search query(most recent) and ignores the rest.
+
+	> Returns a new Observable by applying a function that you supply to each item emitted by the source Observable that returns an Observable, and then emitting the items emitted by the most recently emitted of these Observables.
 
 ### Architecture
 
 * Describe the architecture of your last app.
 
 * Describe MVP. [Mindorks](https://mindorks.com/course/android-mvp-introduction)
+	- Model-View-Presenter Pattern. Here are the roles of every component:
+		- Model — the data layer. Responsible for handling the business logic and communication with the network and database layers.
+		- View — the UI layer. Displays the data and notifies the Presenter about user actions.
+		- Presenter — retrieves the data from the Model, applies the UI logic and manages the state of the View, decides what to display and reacts to user input notifications from the View.
+
+		![MVP_DIAGRAM](https://d33ypg4xwx0n86.cloudfront.net/direct?url=https%3A%2F%2Fcdn-images-1.medium.com%2Fmax%2F1600%2F0*VOr9hgXEmoTxyoyz.png&resize=w1408)
 
 * What is presenter?
+	- The Presenter and its corresponding View are created by the Activity. References to the View and to the TaskRepository - the Model - are given to the constructor of the Presenter. In the implementation of the constructor, the Presenter will call the setPresenter method of the View. This can be simplified when using a dependency injection framework that allows the injection of the Presenters in the corresponding views, reducing the coupling of the classes.
 
 * What is model?
+	- The Model works with the remote and local data sources to get and save the data. This is where the business logic is handled. For example, when requesting the list of Tasks, the Model would try to retrieve them from the local data source. If it is empty, it will query the network, save the response in the local data source and then return the list.
 
 * Describe MVC.
+	- Desgin pattern in which both the Controller and the View depend on the Model: the Controller to update the data, the View to get the data. But, most important for the desktop and Web devs at that time: the Model was separated and could be tested independently of the UI. Several variants of MVC appeared.
+
+		- Model — the data layer, responsible for managing the business logic and handling network or database API.
+		- View — the UI layer — a visualisation of the data from the Model.
+		- Controller — the logic layer, gets notified of the user’s behavior and updates the Model as needed.
+
+		![MVC_DIAGRAM](https://d33ypg4xwx0n86.cloudfront.net/direct?url=https%3A%2F%2Fcdn-images-1.medium.com%2Fmax%2F1600%2F0*HFP--PRKvRXsS7fd.png&resize=w1408)
 
 * What is controller?
+	- Controllers process incoming requests, handle user input and interactions, and execute appropriate application logic.
 
 * Describe MVVM. [GitHub](https://github.com/MindorksOpenSource/android-mvvm-architecture)
 
-* Tell something about clean code [Mindorks](https://blog.mindorks.com/every-programmer-should-read-this-book-6755dedec78d)
+	- At a first glance, MVVM seems very similar to the Model-View-Presenter pattern, because both of them do a great job in abstracting the view’s state and behavior. The Presentation Model abstracts a View independent from a specific user-interface platform, whereas the MVVM pattern was created to simplify the event driven programming of user interfaces.
 
+	![MVVM_DIAGRAM](https://upday.github.io/images/blog/model_view_viewmodel/mvvm.png)
+
+* Tell something about clean code [Mindorks](https://blog.mindorks.com/every-programmer-should-read-this-book-6755dedec78d)
+	- Single Responsibility Principle : It states that every module or class should have responsibility over a single part of the functionality provided by the software, and that responsibility should be entirely encapsulated by the class. All its services should be narrowly aligned with that responsibility.
+	- Say what you mean. Mean what you say : Your function name should follow this rule.
+	- Open Closed Principle : In object-oriented programming, the open/closed principle states that the software entities (classes, modules, functions, etc.) should be open for extension, but closed for modification, that is, such an entity can allow its behaviour to be extended without modifying its source code.
+	- Use Descriptive Names : Remember Ward’s principle: “You know you are working on clean code when each routine turns out to be pretty much what you expected.” Half the battle to achieving that principle is choosing good names for small functions that do one thing. The smaller and more focused a function is, the easier it is to choose a descriptive name.
+	- DRY(Don’t Repeat Yourself) : The duplication is a problem because it bloats the code and will require four-fold modification when the algorithm need to be changed. It is also a four-fold opportunity for an error of omission. Duplication may be the root of all evil in software. Many principles and practices have been created for the purpose of controlling or eliminating it.
+	- Writing software is like any other kind of writing : When you write a paper or an article, you get your thoughts down first, then you massage it until it reads well. The first draft might be clumsy and disorganized, so you wordsmith it and restructure it and refine it until it reads the way you want it to read.
+Use Exceptions Rather Than Return Codes : The problem with Return-Code approaches is that they clutter the caller. The caller must check for errors immediately after the call. Unfortunately, it’s easy to forget. For this reason it is better to throw an exception when you encounter an error. The calling code is cleaner. Its logic is not obscured by error handling.
+	- Always Provide Context with Exceptions : Each exception that you throw should provide enough context to determine the source and location of an error. In Java, you can get a stack trace from any exception; however, a stack trace can’t tell you the intent of the operation that failed. Create informative error messages and pass them along with your exceptions. Mention the operation that failed and the type of failure. If you are logging in your application, pass along enough information to be able to log the error in your catch.
 
 ### Design Problem
 
@@ -1197,25 +1530,32 @@ app:layout_constraintBottom_toBottomOf="@+id/view1"
 ### Android Test Driven Development
 
 * What is Espresso? [Developer Android](https://developer.android.com/training/testing/ui-testing/espresso-testing.html)
+	- The Espresso testing framework, provided by Android Test, provides APIs for writing UI tests to simulate user interactions within a single target app. A key benefit of using Espresso is that it provides automatic synchronization of test actions with the UI of the app you are testing. Espresso detects when the main thread is idle, so it is able to run your test commands at the appropriate time, improving the reliability of your tests. This capability also relieves you from having to add any timing workarounds, such as Thread.sleep() in your test code.
 
 * What is Robolectric? [Robolectric](http://robolectric.org/)
+	- Robolectric is a unit test framework that de-fangs the Android SDK jar so you can test-drive the development of your Android app. Robolectric handles inflation of views, resource loading, and lots of other stuff that’s implemented in native C code on Android devices. This allows tests to do most things you could do on a real device. It’s easy to provide our own implementation for specific SDK methods too, so you could simulate error conditions or real-world sensor behavior, for example.
 
 * What is UI-Automator? [Developer Android](https://developer.android.com/training/testing/ui-testing/uiautomator-testing.html)
+	- The UI Automator APIs let you interact with visible elements on a device, regardless of which Activity is in focus. Your test can look up a UI component by using convenient descriptors such as the text displayed in that component or its content description.
 
 * Explain unit test.
+	- Unit Testing is a level of software testing where individual function/method of a software are tested. The purpose is to validate that each function of the software performs as designed.
 
 * Explain instrumented test.
+	- Instrumentation tests run on a device or an emulator. In the background, your app will be installed and then a testing app will also be installed which will control your app, lunching it and running UI tests as needed.
 
 * Have you done unit testing or automatic testing?
 
 * Why Mockito is used? [Official site](http://site.mockito.org/)
 
 * Describe JUnit test.
+	- JUnit is an open source framework designed for the purpose of writing and running tests in the Java programming language.
 
 
 ### Others
 
 * Describe how REST APIs work.
+	- In a REST-based web API, data and services that act upon data are exposed as, well, simply put: resources with URLs. Those resources can be fetched with HTTP GET, created with HTTP POST, replaced with HTTP PUT, and deleted with HTTP DELETE.
 
 * Describe SQLite.
 
