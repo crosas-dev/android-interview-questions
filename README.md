@@ -666,21 +666,24 @@ It is also a good practice to annotate overridden methods with `@Override` to ma
         Note: For a full explanation of the <b>describeContents()</b> method see [StackOverflow](https://stackoverflow.com/questions/4076946/parcelable-where-when-is-describecontents-used/4914799#4914799).
         In Android Studio, you can have all of the parcelable code auto generated for you, but like with everything else, it is always a good thing to try and understand everything that is happening.
 
-* What is `transient` modifier? [JavaTPoint](https://www.javatpoint.com/transient-keyword)
+* What is `transient` modifier? [JavaTPoint](https://www.javatpoint.com/transient-keyword) `transient` is a Java keyword which marks a member variable not to be serialized when it is persisted to streams of bytes. When an object is transferred through the network, the object needs to be 'serialized'. Serialization converts the object state to serial bytes.
 
-* What are anonymous classes?[OracleDoc](https://docs.oracle.com/javase/tutorial/java/javaOO/anonymousclasses.html)
+* What are anonymous classes?[OracleDoc](https://docs.oracle.com/javase/tutorial/java/javaOO/anonymousclasses.html) It is an inner class without a name and for which only a single object is created. An anonymous inner class can be useful when making an instance of an object with certain “extras” such as overloading methods of a class or interface, without having to actually subclass a class.
 
-* What is the difference between using `==` and `.equals` on an object?[GeeksForGeeks](http://www.geeksforgeeks.org/difference-equals-method-java/)
+* What is the difference between using `==` and `.equals` on an object?[GeeksForGeeks](http://www.geeksforgeeks.org/difference-equals-method-java/) Main difference between .equals() method and == operator is that one is method and other is operator. We can use == operators for reference comparison (address comparison) and .equals() method for content comparison. In simple words, == checks if both objects point to the same memory location whereas .equals() evaluates to the comparison of values in the objects. If a class does not override the equals method, then by default it uses equals(Object o) method of the closest parent class that has overridden this method.
 
-* What is the `hashCode()` and `equals()` used for?
+* What is the `hashCode()` and `equals()` used for? In java equals() method is used to compare equality of two Objects. The equality can be compared in two ways:
 
-* Why would you not call abstract method in constructor?
+  - Shallow comparison: The default implementation of equals method is defined in Java.lang.Object class which simply checks if two Object references (say x and y) refer to the same Object. i.e. It checks if x == y. Since Object class has no data members that define its state, it is also known as shallow comparison.
+  - Deep Comparison: Suppose a class provides its own implementation of equals() method in order to compare the Objects of that class w.r.t state of the Objects. That means data members (i.e. fields) of Objects are to be compared with one another. Such Comparison based on data members is known as deep comparison.
+
+* Why would you not call abstract method in constructor? Constructors must not invoke overridable methods, directly or indirectly. If you violate this rule, program failure will result. The superclass constructor runs before the subclass constructor, so the overriding method in the subclass will be invoked before the subclass constructor has run. If the overriding method depends on any initialization performed by the subclass constructor, the method will not behave as expected.
 
 * What are anonymous classes?[OracleDoc](https://docs.oracle.com/javase/tutorial/java/javaOO/anonymousclasses.html)
 
 * Can you list 8 primitive types in java?
 
-* When would you make an object value `final`?
+* When would you make an object value `final`? 
 
 * What are these `final`, `finally` and `finalize` keywords?
   - `final` is a keyword in the java language. It is used to apply restrictions on class, method and variable. Final class can't be inherited, final method can't be overridden and final variable value can't be changed.
@@ -734,7 +737,10 @@ It is also a good practice to annotate overridden methods with `@Override` to ma
 * When is a `static` block run?
     - Code inside static block is executed only once: the first time you make an object of that class or the first time you access a static member of that class (even if you never make an object of that class).
 
-* What is reflection? [Jenkov](http://tutorials.jenkov.com/java-reflection/index.html)
+* What is reflection? [Jenkov](http://tutorials.jenkov.com/java-reflection/index.html) 
+    - Java Reflection makes it possible to inspect classes, interfaces, fields and methods at runtime, without knowing the names of the classes, methods etc. at compile time. It is also possible to instantiate new objects, invoke methods and get/set field values using reflection.
+
+    - Java Reflection is quite powerful and can be very useful. For instance, Java Reflection can be used to map properties in JSON files to getter / setter methods in Java objects, like Jackson, GSON, Boon etc. does. Or, Reflection can be used to map the column names of a JDBC ResultSet to getter / setter methods in a Java object.
 
 * What is Dependency Injection?  Can you name few libraries? Have you used any?
   - Dependency injection is a very powerful technique, where you relay the task of providing object with its' dependencies on instances of other objects (OOP Composition, [Wikipedia](https://en.wikipedia.org/wiki/Object_composition?oldformat=true)) to a separate class. This allows for fewer constructors, setters, factories and builders as all those functions are taken care of by the DI framework that you use. Also, and it may seem as a minor advantage, but if you use DI framework you need not worry about going through the project and changing all of (example names) `YourCustomInterface customInterfaceObject = new YourCustomClass();` to a new implementaion, as long as your new class (in place of `YourCustomClass`) still implements `CustomInterface` - you can just tweak the DI factory class to produce new class and voila - this new class will be automatically instantiated throughout your code. This allows for better maintenence and control over the program. Another example of DI usage is unit-testing - it allows to conveniently inject all needed dependencies and keep the amount of written code at a lower level.
@@ -743,10 +749,17 @@ It is also a good practice to annotate overridden methods with `@Override` to ma
 * How is a `StringBuilder` implemented to avoid the immutable string allocation problem?
 
 * Difference between `StringBuffer` and `StringBuilder`? [Link](http://www.journaldev.com/137/stringbuffer-vs-stringbuilder)
+    1. StringBuffer is the thread safe utility class to perform several operations on Strings. It contains append() and insert() methods that are widely used to perform operation on Strings in a multi-thread environment. If you will check the source code, most of its functions are synchronized for thread safety. Since most of the String operations, for example concatenation happens in a single thread environment, Java 1.5 introduced another utility class StringBuilder to perform similar operations but doesn’t provide thread safety. If you will look into its source code, all the methods are unsynchronized. This is the most important point for StringBuffer vs StringBuilder.
+    2. StringBuffer has some extra methods such as substring, length, capacity, trimToSize etc. However these are not required since you have all these present in String too. That’s why these methods were never implemented in StringBuilder class.
+	3. StringBuffer was introduced in Java 1.0 whereas StringBuilder class was introduced in Java 1.5 after looking at shortcomings of StringBuffer
+    4. StringBuilder is faster than StringBuffer because of no synchronization.
 
 * What’s the difference between an `Enumeration` and an `Iterator`? [Link](http://javaconceptoftheday.com/differences-between-enumeration-vs-iterator-in-java/)
+	- Enumeration and Iterator are two interfaces in java.util package which are used to traverse over the elements of a Collection object. Though they perform the same function i.e traversing the Collection object, there are some differences exist between them. Using Enumeration, you can only traverse the Collection object. But using Iterator, you can also remove an element while traversing the Collection. This is the one major difference between Enumeration and Iterator in java. You can say Iterator is some what advanced version of Enumeration. In this post, we will see the differences between Enumeration Vs Iterator In Java.
 
 * What is the difference between fail-fast and fail-safe iterators in Java?
+	- Typically, weak consistency (fail-safe) means that if a collection is modified concurrently with an iteration, the guarantees of what the iteration sees are weaker. 
+	- "Fail fast" means: it may fail ... and the failure condition is checked aggressively so that the failure condition is (where possible1) detected before damage can be done. In Java, a fail-fast iterator fails by throwing a `ConcurrentModificationException`.
 
 * What is Java NIO? [Link](http://tutorials.jenkov.com/java-nio/index.html)
 
@@ -754,63 +767,125 @@ It is also a good practice to annotate overridden methods with `@Override` to ma
 
 #### Base
 
-* Tell all the Android application components. [Android Official](https://developer.android.com/guide/components/fundamentals.html#Components)
+* Tell all the Android application components. [Android Official](https://developer.android.com/guide/components/fundamentals.html#Components) 
+	- App components are the essential building blocks of an Android app. Each component is an entry point through which the system or a user can enter your app. Some components depend on others. There are four different types of app components:
+		- Activities
+		- Services
+		- Broadcast receivers
+		- Content providers
+	- Each type serves a distinct purpose and has a distinct lifecycle that defines how the component is created and destroyed. The following sections describe the four types of app components.
 
 * What is the structure of an Android Application?
+<table class="tablecontent"><tbody><tr><th>Folder Name</th><th>Description</th></tr><tr><td>src</td><td>The 'src' stands for <b>Source Code.</b> It contains the Java Source files.</td></tr><tr><td>gen</td><td>The 'gen' stands for <b>Generated Java Library.</b> This library is for Android internal use only.</td></tr><tr><td>Android 2.2</td><td>The Android Framework Library is stored here.</td></tr><tr><td>assets</td><td>It is used to store raw asset files.</td></tr><tr><td>libs</td><td>It contains private libraries.</td></tr><tr><td>res</td><td>The 'res' stands for <b>Resource file.</b> It can store resource files such as pictures, XML files, etc. It contains some additional folders such as Drawable, Layout and Values.<br><br><b>anim: </b>It is used for XML files that are compiled into animation objects.<br><b>color:</b> It is used for XML files that describe colors.<br><b>drawable:</b> It is used to store various graphics files. In Android project structure,<br><br><b>there are three types of drawable folders,</b><br>1. drawable-mdpi<br>2. drawable-hdpi<br>3. drawable-ldpi<br><br>The above drawable folders are required in order to adapt to different screen resolutions.<br><br><b>layout:</b> It is used for placing the XML layout files, which defines how various Android objects such as textbox, buttons, etc. are organized on the screen.<br><br><b>menu:</b> It is used for defining the XML files in the application menu.<br><br><b>raw:</b> The 'raw' stands for <b>Raw Asset Files.</b> These files are referenced from the application using a resource identifier in the R class.<br><b>For example,</b> good place for media is MP3 or Ogg files.<br><br><b>values:</b> It is used for XML files which stores various string values, such as titles, labels, etc.<br><br><b>xml:</b> It is used for configuring the application components.</td></tr><tr><td>AndroidManifest.xml</td><td>This file indicates the Android definition file. This file contains the information about the Android application such as minimum Android version, permission to access Android device capabilities such as Internet access permission, phone permission etc.</td></tr><tr><td>default.properties</td><td>This file contains the project settings, such as build the target. Do not edit this file manually. It should be maintained in a Source Revision Control System.</td></tr><tr><td>Proguard.cfg</td><td>This file defines how ProGuard optimizes and makes your code unclear.</td></tr><tr><td>MainLayout.xml</td><td>This file describes the layout of the page. So all the components such as textboxes, labels, radio buttons, etc. are displaying on the application screen.</td></tr><tr><td>Activity class</td><td>The application occupies the entire device screen which needs at least one class inherits from the Activity class. OnCreate() method initiates the application and loads the layout page.</td></tr></tbody></table>
 
 * What is `Context`? How is it used? [Medium](https://medium.com/p/understanding-context-in-android-application-330913e32514)
+	- It's the context of current state of the application/object. It lets newly-created objects understand what has been going on. Typically you call it to get information regarding another part of your program (activity and package/application). You can get the context by invoking getApplicationContext(), getContext(), getBaseContext() or this (when in a class that extends from Context, such as the Application, Activity, Service and IntentService classes).
 
 * What is `AndroidManifest.xml`?
+	- Every application must have an AndroidManifest.xml file (with precisely that name) in its root directory. The manifest presents essential information about the application to the Android system, information the system must have before it can run any of the application's code.
 
 * What is `Application` class?
+	- The Application class in Android is the base class within an Android app that contains all other components such as activities and services. The Application class, or any subclass of the Application class, is instantiated before any other class when the process for your application/package is created.
 
 #### Activity
 
-* What is `Activity`?
+* What is `Activity`? 
+	- An activity represents a single screen with a user interface just like window or frame of Java.Android activity is the subclass of ContextThemeWrapper class. 
 
 * Explain `Activity` and `Fragment` lifecycle. (Complete diagram [GitHub](https://github.com/xxv/android-lifecycle), simplified diagram for [Activity](https://developer.android.com/guide/components/activities/activity-lifecycle.html#alc), [Fragment](https://developer.android.com/guide/components/fragments.html#Lifecycle))
 
+![ActivityFragmentLifeCycle](https://i.stack.imgur.com/1llRw.png)
+
 * What are "launch modes"? [Mindorks](https://blog.mindorks.com/android-activity-launchmode-explained-cbc6cf996802)
+	- There are four launch modes for activity. They are:
+		1. standard. This is the default launch mode of an activity (If not specified). It creates a new instance of an activity in the task from which it was started. Multiple instances of the activity can be created and multiple instances can be added to the same or different tasks. In other words you can create the same activity multiple times in the same task as well as in different tasks.
+		2. singleTop. In this launch mode if an instance of activity already exists at the top of the current task, a new instance will not be created and Android system will route the intent information through onNewIntent(). If an instance is not present on top of task then new instance will be created. Using this launch mode you can create multiple instance of the same activity in the same task or in different tasks only if the same instance does not already exist at the top of stack.
+		3. singleTask. In this launch mode a new task will always be created and a new instance will be pushed to the task as the root one. If an instance of activity exists on the separate task, a new instance will not be created and Android system routes the intent information through onNewIntent() method. At a time only one instance of activity will exist.
+		4. singleInstance. This is very special launch mode and only used in the applications that has only one activity. It is similar to singleTask except that no other activities will be created in the same task. Any other activity started from here will create in a new task.
 
 #### Fragments
 
 * What is `Fragment`?
+	- A Fragment represents a behavior or a portion of user interface in a FragmentActivity. You can combine multiple fragments in a single activity to build a multi-pane UI and reuse a fragment in multiple activities. You can think of a fragment as a modular section of an activity, which has its own lifecycle, receives its own input events, and which you can add or remove while the activity is running (sort of like a "sub activity" that you can reuse in different activities). A fragment must always be hosted in an activity and the fragment's lifecycle is directly affected by the host activity's lifecycle.
 
 * What is the difference between a `Fragment` and an `Activity`? Explain the relationship between the two.
+	- A fragment has its own layout and its own behavior with its own lifecycle callbacks. You can add or remove fragments in an activity while the activity is running. You can combine multiple fragments in a single activity to build a multi-pane UI. A fragment can implement a behavior that has no user interface component.
 
 * Why is it recommended to use only the default constructor to create a `Fragment`? [StackOverflow](https://stackoverflow.com/a/16042750/2809326)
+	- The reason why you should be passing parameters through bundle is because when the system restores a fragment (e.g on config change), it will automatically restore your bundle.
+
+	- The callbacks like onCreate or onCreateView should read the parameters from the bundle - this way you are guaranteed to restore the state of the fragment correctly to the same state the fragment was initialised with (note this state can be different from the onSaveInstanceState bundle that is passed to the onCreate/onCreateView)
+
+	- The recommendation of using the static newInstance() method is just a recommendation. You can use a non default constructor but make sure you populate the initialisation parameters in the bundle inside the body of that constructor. And read those parameters in the onCreate() or onCreateView() methods.
 
 * How would you communicate between two Fragments? [Android Official](https://developer.android.com/training/basics/fragments/communicating.html)
 
 * What is retained `Fragment`? [AndroidDesignPatterns](https://www.androiddesignpatterns.com/2013/04/retaining-objects-across-config-changes.html)
+	-  All Fragment-to-Fragment communication is done either through a shared ViewModel or through the associated Activity. Two Fragments should never communicate directly.
+	-  ViewModel objects are designed to outlive specific instantiations of views or LifecycleOwners. This design also means you can write tests to cover a ViewModel more easily as it doesn't know about view and Lifecycle objects. ViewModel objects can contain LifecycleObservers, such as LiveData objects. However ViewModel objects must never observe changes to lifecycle-aware observables, such as LiveData objects. If the ViewModel needs the Application context, for example to find a system service, it can extend the AndroidViewModel class and have a constructor that receives the Application in the constructor, since Application class extends Context.
+
+![ViewModelLifeCycle](https://developer.android.com/images/topic/libraries/architecture/viewmodel-lifecycle.png)
 
 #### Views and ViewGroups
 
 * What is `View` in Android?
+	- View is a basic building block of UI (User Interface) in android. A view is a small rectangular box which responds to user inputs. Eg: EditText , Button , CheckBox , etc.. ViewGroup is a invisible container of other views (child views) and other viewgroups.
 
 * Difference between `View.GONE` and `View.INVISIBLE`?
+	- `View.INVISIBLE` This view is invisible, but it still takes up space for layout purposes. `View.GONE` This view is invisible, and it doesn't take any space for layout purposes.
 
 * Can you create custom views? How?
+	- If you only need to make small adjustments to an existing widget or layout, you can simply subclass the widget or layout and override its methods. Creating your own View subclasses gives you precise control over the appearance and function of a screen element.
 
 * What are ViewGroups and how they are different from the Views?
+	- A ViewGroup is a special view that can contain other views (called children.) The view group is the base class for layouts and views containers. This class also defines the ViewGroup.LayoutParams class which serves as the base class for layouts parameters.
+
+	- View class represents the basic building block for user interface components. A View occupies a rectangular area on the screen and is responsible for drawing and event handling. View is the base class for widgets, which are used to create interactive UI components (buttons, text fields, etc.).
 
 * What is a canvas?
+	- The Canvas class holds the "draw" calls. To draw something, you need 4 basic components: A Bitmap to hold the pixels, a Canvas to host the draw calls (writing into the bitmap), a drawing primitive (e.g. Rect, Path, text, Bitmap), and a paint (to describe the colors and styles for the drawing).
 
 * What is a `SurfaceView`?
+	- When you create a custom view and override its onDraw() method, all drawing happens on the UI thread. Drawing on the UI thread puts an upper limit on how long or complex your drawing operations can be, because your app has to complete all its work for every screen refresh. One option is to move some of the drawing work to a different thread using a SurfaceView. 
+		- All the views in your view hierarchy are rendered onto one Surface in the UI thread.
+		- In the context of the Android framework, Surface refers to a lower-level drawing surface whose contents are eventually displayed on the user's screen.
+		- A SurfaceView is a view in your view hierarchy that has its own separate Surface, as shown in the diagram below. You can draw to it in a separate thread.
+		- To draw, start a thread, lock the SurfaceView's canvas, do your drawing, and post it to the Surface.
 
 * Relative Layout vs Linear Layout.
+	- `LinearLayout` adds view linearly either vertical or horizontal by the orientation set by you. It will add views one after another which will depend on the requirement of the design. And `RelativeLayout` adds view related with each other, there is no need to declare orientation in `RelativeLayout`.
 
 * Tell about Constraint Layout [Mindorks](https://blog.mindorks.com/using-constraint-layout-in-android-531e68019cd)
+	- Intention of `ConstraintLayout` is to optimize and flatten the view hierarchy of your layouts by applying some rules to each view to avoid nesting. Rules remind you of `RelativeLayout`, for example setting the left to the left of some other view.
+```
+app:layout_constraintBottom_toBottomOf="@+id/view1"
+```
+	- Unlike `RelativeLayout`, `ConstraintLayout` offers bias value that is used to position a view in terms of 0% and 100% horizontal and vertical offset relative to the handles (marked with circle). These percentages (and fractions) offer seamless positioning of the view across different screen densities and sizes.
+   ```java
+	app:layout_constraintHorizontal_bias="0.33" <!-- from 0.0 to 1.0 -->
+	app:layout_constraintVertical_bias="0.53" <!-- from 0.0 to 1.0 -->
+   ```
+	- Baseline handle (long pipe with rounded corners, below the circle handle) is used to align content of the view with another view reference. Square handles (on each corner of the view) are used to resize the view in dps.
 
 * Do you know what is the view tree? How can you optimize its depth?
 
 #### Displaying Lists of Content
 
 * What is the difference between `ListView` and `RecyclerView`?
+	- The RecyclerView is much more powerful, flexible and a major enhancement over ListView
+		1. ViewHolder Pattern. In a ListView, it was recommended to use the ViewHolder pattern but it was never a compulsion. In case of RecyclerView, this is mandatory using the RecyclerView.ViewHolder class. This is one of the major differences between the ListView and the RecyclerView. It makes things a bit more complex in RecyclerView but a lot of problems that we faced in the ListView are solved efficiently.
+		2. LayoutManager. This is another massive enhancement brought to the RecyclerView. In a ListView, the only type of view available is the vertical ListView. There is no official way to even implement a horizontal ListView.
+		3. Item Animator. ListViews are lacking in support of good animations, but the RecyclerView brings a whole new dimension to it. Using the RecyclerView.ItemAnimator class, animating the views becomes so much easy and intuitive.
+		4. Item Decoration. In case of ListViews, dynamically decorating items like adding borders or dividers was never easy. But in case of RecyclerView, the RecyclerView.ItemDecorator class gives huge control to the developers but makes things a bit more time consuming and complex.
+		5. OnItemTouchListener. Intercepting item clicks on a ListView was simple, thanks to its AdapterView.OnItemClickListener interface. But the RecyclerView gives much more power and control to its developers by the RecyclerView.OnItemTouchListener but it complicates things a bit for the developer.
+
+	- In simple words, the RecyclerView is much more customizable than the ListView and gives a lot of control and power to its developers.
 
 * What is the ViewHolder pattern? Why should we use it?
+	- The ViewHolder design pattern enables you to access each list item view without the need for the look up, saving valuable processor cycles. Specifically, it avoids frequent call of findViewById() during ListView scrolling, and that will make it smooth.
 
 * What is `SnapHelper`? [Mindorks](https://blog.mindorks.com/using-snaphelper-in-recyclerview-fc616b6833e8)
+	- SnapHelper is a helper class that helps in snapping any child view of the RecyclerView. For example, you can snap the firstVisibleItem of the RecyclerView as you must have seen in the play store application that the firstVisibleItem will be always completely visible when scrolling comes to the idle position.
 
 #### Dialogs and Toasts
 
