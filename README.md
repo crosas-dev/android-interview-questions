@@ -890,52 +890,131 @@ app:layout_constraintBottom_toBottomOf="@+id/view1"
 #### Dialogs and Toasts
 
 * What is `Dialog` in Android?
+	- A dialog is a small window that prompts the user to make a decision or enter additional information. A dialog does not fill the screen and is normally used for modal events that require users to take an action before they can proceed.
 
 * What is `Toast` in Android?
+	- A toast provides simple feedback about an operation in a small popup. It only fills the amount of space required for the message and the current activity remains visible and interactive. Toasts automatically disappear after a timeout.
 
 * What the difference between `Dialog` and `Dialog Fragment`?
+	- A DialogFragment is a fragment that displays a dialog window, floating on top of its activity's window. This fragment contains a Dialog object, which it displays as appropriate based on the fragment's state. Control of the dialog (deciding when to show, hide, dismiss it) should be done through the API, not with direct calls on the dialog.
 
 #### Intents and Broadcasting
 
 * What is `Intent`? [StackOverflow](https://stackoverflow.com/questions/6578051/what-is-an-intent-in-android)
+	- An Intent is basically a message to say you did or want something to happen. Depending on the intent, apps or the OS might be listening for it and will react accordingly. Think of it as a blast email to a bunch of friends, in which you tell your friend John to do something, or to friends who can do X ("intent filters"), to do X. The other folks will ignore the email, but John (or friends who can do X) will react to it.
 
 * What is an Implicit `Intent`?
+	- Is something which is sent from one activity to inbuilt android activity in android. When we work with implicit intents, we generally specify the action which we want to perform and optionally some data required for that action. Data is typically expressed as a Uri which can represent an image in the gallery or person in the contacts database. Implicit Intents do not directly specify the Android components which should be called , it only specifies action to be performed.An Uri can be used with the implicit intent to specify data type.
+
+	```java
+	Intent intent = new Intent(ACTION_VIEW,Uri.parse("http://www.google.com");
+	```
 
 * What is an Explicit `Intent`?
+	- Explicit intents are used in the application itself wherein one activity can switch to other activty.
+
+	```java
+	Intent intent = new Intent(this,Target.class); 
+	```
+	
+	- this causes switching of activity from current context to the target activity. Explicit Intents can also be used to pass data to other activity using putExtra method and retrieved by target activity by getIntent().getExtras() methods.
 
 * What is a `BroadcastReceiver`? [StackOverflow](https://stackoverflow.com/questions/5296987/what-is-broadcastreceiver-and-when-we-use-it)
+	- A broadcast receiver is a component that responds to system-wide broadcast announcements. Many broadcasts originate from the system—for example, a broadcast announcing that the screen has turned off, the battery is low, or a picture was captured. Applications can also initiate broadcasts—for example, to let other applications know that some data has been downloaded to the device and is available for them to use. Although broadcast receivers don't display a user interface, they may create a status bar notification to alert the user when a broadcast event occurs.
 
 * What is a `LocalBroadcastManager`? [Developer Android](https://developer.android.com/reference/android/support/v4/content/LocalBroadcastManager.html)
+	- Helper to register for and send broadcasts of Intents to local objects within your process. This has a number of advantages over sending global broadcasts with sendBroadcast(Intent):
+		- You know that the data you are broadcasting won't leave your app, so don't need to worry about leaking private data.
+		- It is not possible for other applications to send these broadcasts to your app, so you don't need to worry about having security holes they can exploit.
+		- It is more efficient than sending a global broadcast through the system.
 
 * What is the function of an `IntentFilter`?
+	- An intent filter is an expression in an app's manifest file that specifies the type of intents that the component would like to receive. `IntentFilter` objects are often created in XML as part of a package's `AndroidManifest.xml` file, using `intent-filter` tags.
 
+	```java
+	<intent-filter>
+	    <data android:mimeType="image/*" />
+	    ...
+	</intent-filter>
+	```
 * What is a Sticky `Intent`? [AndroidInterview](http://www.androidinterview.com/what-is-a-sticky-intent/)
+	- Sticky Intent is also a type of Intent which allows a communication between function and a service sendStickyBroadcast() performs a sendBroadcast(Inent) know as sticky,the Intent your are sending stays around after the broadcast is complete, so that others can quickly retrieve that data through the return value of registerReceiver(BroadcastReceiver, IntentFilter). In all other ways, this behaves the same as sendBroadcast(Intent).
 
 * Describe how broadcasts and intents work to be able to pass messages around your app?
+	- When a broadcast intent is created, it must include an action string in addition to optional data and a category string. As with standard intents, data is added to a broadcast intent using key-value pairs in conjunction with the putExtra() method of the intent object. The optional category string may be assigned to a broadcast intent via a call to the addCategory() method.
+
+	- The action string, which identifies the broadcast event, must be unique and typically uses the application’s Java package name syntax. For example, the following code fragment creates and sends a broadcast intent including a unique action string and data:
+
+	```java
+	Intent intent = new Intent();
+	intent.setAction("com.example.Broadcast");
+	intent.putExtra("HighScore", 1000);
+	sendBroadcast(intent);
+	```
+	- The above code would successfully launch the corresponding broadcast receiver on a device running an Android version earlier than 3.0. On more recent versions of Android, however, the intent would not be received by the broadcast receiver. This is because Android 3.0 introduced a launch control security measure that prevents components of stopped applications from being launched via an intent. An application is considered to be in a stopped state if the application has either just been installed and not previously launched, or been manually stopped by the user using the application manager on the device. To get around this, however, a flag can be added to the intent before it is sent to indicate that the intent is to be allowed to start a component of a stopped application. This flag is FLAG_INCLUDE_STOPPED_PACKAGES and would be used as outlined in the following adaptation of the previous code fragment:
+
+	```java
+	Intent intent = new Intent();
+	intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+	intent.setAction("com.example.Broadcast");
+	intent.putExtra("HighScore", 1000);
+	sendBroadcast(intent);
+	```
 
 * What is a `PendingIntent`?
+	- A PendingIntent is a token that you give to a foreign application (e.g. NotificationManager, AlarmManager, Home Screen AppWidgetManager, or other 3rd party applications), which allows the foreign application to use your application's permissions to execute a predefined piece of code.
+
+	- If you give the foreign application an Intent, it will execute your Intent with its own permissions. But if you give the foreign application a PendingIntent, that application will execute your Intent using your application's permission.
 
 * What are the different types of Broadcasts?
+	- Normal broadcasts:-Normal broadcasts (sent with Context.sendBroadcast) are completely asynchronous. All receivers of the broadcast are run in an undefined order, often at the same time. This is more efficient, but means that receivers cannot use the result or abort APIs included here.
+
+	- Ordered broadcasts :- Ordered Broadcast is the type of broadcast which is sent in a synchronous manner i.e. one by one to each listener. Android sendOrderedBroadcast method falls in Context class of Android, the purpose of this method is to broadcast to listening receivers in a serialized manner and receive the result back to the calling activity. 
+
+	- Sticky broadcasts:- A Sticky Broadcast is a Broadcast that stays around following the moment it is announced to the system. Most Broadcasts are sent, processed within the system and become quickly inaccessible. However, Sticky Broadcasts announce information that remains accessible beyond the point at which they are processed. A typical example is the battery level Broadcast. Unlike most Broadcasts, the battery level can be retrieved within applications beyond the point at which it was sent through the system. This means that apps can find out whatever the last battery level broadcast was.
 
 #### Services
 
-* What is `Serivce`?
+* What is `Service`?
+	- A Service is an application component that can perform long-running operations in the background, and it doesn't provide a user interface. Another application component can start a service, and it continues to run in the background even if the user switches to another application. Additionally, a component can bind to a service to interact with it and even perform interprocess communication (IPC). For example, a service can handle network transactions, play music, perform file I/O, or interact with a content provider, all from the background.
 
 * `Service` vs `IntentService`. [StackOverflow](https://stackoverflow.com/a/15772151/5153275)
+	- `Service` is a base class of service implementation. `Service` class is run in the application’s main thread which may reduce the application performance. Thus, `IntentService`, which is a direct subclass of `Service` is borned to make things easier. The `IntentService` is used to perform a certain task in the background. Once done, the instance of `IntentService` terminate itself automatically. Examples for its usage would be to download a certain resources from the Internet.
+	- A `Service` is a broader implementation for the developer to set up background operations, while an `IntentService` is useful for “fire and forget” operations, taking care of background Thread creation and cleanup.
 
 * What is a `JobScheduler`? [Vogella](http://www.vogella.com/tutorials/AndroidTaskScheduling/article.html)
+	- JobScheduler is the Android framework API for scheduling tasks or work. It first became available in Android 5.0 (API level 21), and remains under active development. Notably, Android 7.0 (API level 24) added the ability to trigger jobs based on ContentProvider changes.
+
+	- JobScheduler is implemented in the platform, which allows it to collect information about jobs that need to run across all apps. This information is used to schedule jobs to run at, or around, the same time. Batching job execution in this fashion allows the device to enter and stay in sleep states longer, preserving battery life.
+
+	- You use JobScheduler by registering jobs, specifying their requirements for network and timing. The system then gracefully schedules the jobs to execute at the appropriate times. At the same time, it also defers job execution as necessary to comply with Doze and App Standby restrictions. JobScheduler provides many methods to define job-execution conditions.
 
 #### Inter-process Communication
 
 * How can two distinct Android apps interact?
+	- An Intent can be explicit in order to start a specific component (a specific Activity instance) or implicit in order to start any component that can handle the intended action (such as "capture a photo").
 
 * Is it possible to run an Android app in multiple processes? How?
+	- You can specify android:process=":remote" in your manifest to have an activity/service run in a seperate process.
+
+	- The "remote" is just the name of the remote process, and you can call it whatever you want. If you want several activities/services to run in the same process, just give it the same name.
+
+```java
+<activity android:name=".RemoteActivity" android:label="@string/app_name" android:process=":RemoteActivityProcess"/>
+```
 
 * What is AIDL? Enumerate the steps in creating a bounded service through AIDL.
+	- On Android, one process cannot normally access the memory of another process. So to talk, they need to decompose their objects into primitives that the operating system can understand, and marshall the objects across that boundary for you. The code to do that marshalling is tedious to write, so Android handles it for you with AIDL. To create a bounded service using AIDL, follow these steps:
+
+		1. Create the .aidl file. This file defines the programming interface with method signatures.
+		2. Implement the interface. The Android SDK tools generate an interface in the Java programming language, based on your .aidl file. This interface has an inner abstract class named Stub that extends Binder and implements methods from your AIDL interface. You must extend the Stub class and implement the methods.
+		3. Expose the interface to clients. Implement a Service and override onBind() to return your implementation of the Stub class.
 
 * What can you use for background processing in Android?
 
 * What is a `ContentProvider` and what is it typically used for?
+	- A ContentProvider manages access to a structured set of data. It encapsulates the data and provide mechanisms for defining data security. ContentProvider is the standard interface that connects data in one process with code running in another process.
+
 
 #### Long-running Operations
 
