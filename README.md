@@ -594,6 +594,11 @@
     - It means that once created, `String` object's `char[]` (its' containing value) is declared `final` and, therefore, it can not be changed during runtime.
 
 * What is `String.intern()`? When and why should it be used?
+	- String Interning is a method of storing only one copy of each distinct String Value, which must be immutable. By applying String.intern() on a couple of strings will ensure that all strings having same contents share same memory. For example, if a name ‘Amy’ appears 100 times, by interning you ensure only one ‘Amy’ is actually allocated memory. This can be very useful to reduce memory requirements of your program. But be aware that the cache is maintained by JVM in permanent memory pool which is usually limited in size compared to heap so you should not use intern if you don’t have too many duplicate values intern() method : In Java, when we perform any operation using intern() method, it returns a canonical representation for the string object. A pool is managed by String class.
+		- When the intern() method is executed then it checks whether the String equals to this String Object is in the pool or not.
+		- If it is available, then the string from the pool is returned. Otherwise, this String object is added to the pool and a reference to this String object is returned.
+		- It follows that for any two strings s and t, s.intern() == t.intern() is true if and only if s.equals(t) is true.
+		- In the java programming language, intern() is a method present in String class which is present in java.lang package. By the help of intern() method, we can get the reference of corresponding String constant pool object of an original object.
 
 * Can you list 8 primitive types in java?
 
