@@ -134,6 +134,113 @@
 
 * Sorting Algorithms [Wikipedia](https://en.wikipedia.org/wiki/Sorting_algorithm?oldformat=true)
     - Using the most efficient sorting algorithm (and correct data structures that implement it) is vital for any program, because data manipulation can be one of the most significant bottlenecks in case of performance and the main purpose of spending time, determining the best algorithm for the job, is to drastically improve said performance. The efficiency of an algorithm is measured in its' "Big O" ([StackOverflow](https://stackoverflow.com/questions/487258/what-is-a-plain-english-explanation-of-big-o-notation)) score. Really good algorithms perform important actions in O(n log n) or even O(log n) time and some of them can even perform certain actions in O(1) time (HashTable insertion, for example). But there is always a trade-off - if some algorithm is really good at adding a new element to a data structure, it is, most certainly, much worse at data access than some other algorithm. If you are proficient with math, you may notice that "Big O" notation has many similarities with "limits", and you would be right - it measures best, worst and average performances of an algorithm in question, by looking at its' function limit. It should be noted that, when we are speaking about O(1) - constant time - we are not saying that this algorithm performs an action in one operation, rather that it can perform this action with the same number of operations (roughly), regrardless of the amount of elements it has to take into account. Thankfully, a lot of "Big O" scores have been already calculated, so you don't have to guess, which algorithm or data structure will perform better in your project. ["Big O" cheat sheet](http://bigocheatsheet.com/)
+
+	    <table class="table table-bordered table-striped"><tbody>
+		    <tr>
+		      <th>Algorithm</th>
+		      <th colspan="3">Time Complexity</th>
+		      <th>Space Complexity</th>
+		    </tr>
+		    <tr>
+		      <th></th>
+		      <th>Best</th>
+		      <th>Average</th>
+		      <th>Worst</th>
+		      <th>Worst</th>
+		    </tr>
+		    <tr>
+		      <td><a href="http://en.wikipedia.org/wiki/Quicksort">Quicksort</a></td>
+		      <td><code class="orange">Ω(n log(n))</code></td>
+		      <td><code class="orange">Θ(n log(n))</code></td>
+		      <td><code class="red">O(n^2)</code></td>
+		      <td><code class="yellow-green">O(log(n))</code></td>
+		    </tr>
+		    <tr>
+		      <td><a href="http://en.wikipedia.org/wiki/Merge_sort">Mergesort</a></td>
+		      <td><code class="orange">Ω(n log(n))</code></td>
+		      <td><code class="orange">Θ(n log(n))</code></td>
+		      <td><code class="orange">O(n log(n))</code></td>
+		      <td><code class="yellow">O(n)</code></td>
+		    </tr>
+		    <tr>
+		      <td><a href="http://en.wikipedia.org/wiki/Timsort">Timsort</a></td>
+		      <td><code class="yellow">Ω(n)</code></td>
+		      <td><code class="orange">Θ(n log(n))</code></td>
+		      <td><code class="orange">O(n log(n))</code></td>
+		      <td><code class="yellow">O(n)</code></td>
+		    </tr>
+		    <tr>
+		      <td><a href="http://en.wikipedia.org/wiki/Heapsort">Heapsort</a></td>
+		      <td><code class="orange">Ω(n log(n))</code></td>
+		      <td><code class="orange">Θ(n log(n))</code></td>
+		      <td><code class="orange">O(n log(n))</code></td>
+		      <td><code class="green">O(1)</code></td>
+		    </tr>
+		    <tr>
+		      <td><a href="http://en.wikipedia.org/wiki/Bubble_sort">Bubble Sort</a></td>
+		      <td><code class="yellow">Ω(n)</code></td>
+		      <td><code class="red">Θ(n^2)</code></td>
+		      <td><code class="red">O(n^2)</code></td>
+		      <td><code class="green">O(1)</code></td>
+		    </tr>
+		    <tr>
+		      <td><a href="http://en.wikipedia.org/wiki/Insertion_sort">Insertion Sort</a></td>
+		      <td><code class="yellow">Ω(n)</code></td>
+		      <td><code class="red">Θ(n^2)</code></td>
+		      <td><code class="red">O(n^2)</code></td>
+		      <td><code class="green">O(1)</code></td>
+		    </tr>
+		    <tr>
+		      <td><a href="http://en.wikipedia.org/wiki/Selection_sort">Selection Sort</a></td>
+		      <td><code class="red">Ω(n^2)</code></td>
+		      <td><code class="red">Θ(n^2)</code></td>
+		      <td><code class="red">O(n^2)</code></td>
+		      <td><code class="green">O(1)</code></td>
+		    </tr>
+		    <tr>
+		      <td><a href="https://en.wikipedia.org/wiki/Tree_sort">Tree Sort</a></td>
+		      <td><code class="orange">Ω(n log(n))</code></td>
+		      <td><code class="orange">Θ(n log(n))</code></td>
+		      <td><code class="red">O(n^2)</code></td>
+		      <td><code class="yellow">O(n)</code></td>
+		    </tr>
+		    <tr>
+		      <td><a href="http://en.wikipedia.org/wiki/Shellsort">Shell Sort</a></td>
+		      <td><code class="orange">Ω(n log(n))</code></td>
+		      <td><code class="red">Θ(n(log(n))^2)</code></td>
+		      <td><code class="red">O(n(log(n))^2)</code></td>
+		      <td><code class="green">O(1)</code></td>
+		    </tr>
+		    <tr>
+		      <td><a rel="tooltip" title="Only for integers. k is a number of buckets" href="http://en.wikipedia.org/wiki/Bucket_sort">Bucket Sort</a></td>
+		      <td><code class="green">Ω(n+k)</code></td>
+		      <td><code class="green">Θ(n+k)</code></td>
+		      <td><code class="red">O(n^2)</code></td>
+		      <td><code class="yellow">O(n)</code></td>
+		    </tr>
+		    <tr>
+		      <td><a rel="tooltip" title="Constant number of digits 'k'" href="http://en.wikipedia.org/wiki/Radix_sort">Radix Sort</a></td>
+		      <td><code class="green">Ω(nk)</code></td>
+		      <td><code class="green">Θ(nk)</code></td>
+		      <td><code class="green">O(nk)</code></td>
+		      <td><code class="yellow">O(n+k)</code></td>
+		    </tr>
+		    <tr>
+		      <td><a rel="tooltip" title="Difference between maximum and minimum number 'k'" href="https://en.wikipedia.org/wiki/Counting_sort">Counting Sort</a></td>
+		      <td><code class="green">Ω(n+k)</code></td>
+		      <td><code class="green">Θ(n+k)</code></td>
+		      <td><code class="green">O(n+k)</code></td>
+		      <td><code class="yellow">O(k)</code></td>
+		    </tr>
+		    <tr>
+		      <td><a href="https://en.wikipedia.org/wiki/Cubesort">Cubesort</a></td>
+		      <td><code class="yellow">Ω(n)</code></td>
+		      <td><code class="orange">Θ(n log(n))</code></td>
+		      <td><code class="orange">O(n log(n))</code></td>
+		      <td><code class="yellow">O(n)</code></td>
+		   </tr>
+		</tbody></table>
+
     - Bubble sort [Wikipedia](https://en.wikipedia.org/wiki/Bubble_sort?oldformat=true) 
         - Bubble sort is one of the simplest sorting algorithms. It just compares neighbouring elements and if the one that precedes the other is smaller - it changes their places. So over one iteration over the data list, it is guaranteed that **at least** one element will be in its' correct place (the biggest/smallest one - depending on the direction of sorting). This is not a very efficient algorithm, as highly unordered arrays will require a lot of reordering (upto O(n^2)), but one of the advantages of this algorithm is its' space complexity - only two elements are compared at once and there is no need to allocate more memory, than those two will occupy. 
             <table>
@@ -246,7 +353,53 @@
     - Dijkstra algorithm
     - A* algorithm
     - Breadth First Search
+		- BFS is a traversing algorithm where you should start traversing from a selected node (source or starting node) and traverse the graph layerwise thus exploring the neighbour nodes (nodes which are directly connected to source node). You must then move towards the next-level neighbour nodes. As the name BFS suggests, you are required to traverse the graph breadthwise as follows:
+			- First move horizontally and visit all the nodes of the current layer
+			- Move to the next layer
+			
+			```java
+			void BFS(Node root) {
+				// BFS uses Queue data structure
+				Queue queue = new LinkedList();
+				queue.add(root);
+				printNode(root);
+				rootNode.visited = true;
+				while(!queue.isEmpty()) {
+					Node node = (Node)queue.remove();
+					Node child = null;
+					while((child = getUnvisitedChildNode(node)) != null) {
+						child.visited = true;
+						printNode(child);
+						queue.add(child);
+					}
+				}
+				// Clear visited property of nodes
+				clearNodes();
+		    }
+		    ```
     - Depth First Search
+	    - DFS is another uninformed graph traversal algorithm which produces a non-optimal solution but can be useful for traversing quickly into deeper search domains. Depth first search is very similar to the BFS. With Depth first search you start at the top most node in a tree and then follow the left most branch until there exists no more leafs in that branch. At that point you will search the nearest ancestor with unexplored nodes until such time as you find the goal node.
+
+			```java
+			void DFS(Node root) {
+				// DFS uses Dequeue data structure
+				Deque deque = new ArrayDeque();
+				deque.add(root);
+				printNode(root);
+				rootNode.visited = true;
+				while(!deque.isEmpty()) {
+					Node node = (Node)deque.remove();
+					Node child = null;
+					while((child = getUnvisitedChildNode(node)) != null) {
+						child.visited = true;
+						printNode(child);
+						deque.add(child);
+					}
+				}
+				// Clear visited property of nodes
+				clearNodes();
+		    }
+		    ```
 
 ### Core Java
 
@@ -368,21 +521,23 @@ It is also a good practice to annotate overridden methods with `@Override` to ma
 
 * What are the design patterns? [GitHub](https://github.com/iluwatar/java-design-patterns)
     - Creational patterns
-        - Builder [Wikipedia](https://en.wikipedia.org/wiki/Builder_pattern?oldformat=true)
+        - Builder [Wikipedia](https://en.wikipedia.org/wiki/Builder_pattern?oldformat=true).
+        	The intent of the Builder design pattern is to separate the construction of a complex object from its representation. By doing so the same construction process can create different representations. Encapsulate creating and assembling the parts of a complex object in a separate Builder object. A class delegates object creation to a Builder object instead of creating the objects directly.
 
-        - Factory [Wikipedia](https://en.wikipedia.org/wiki/Factory_method_pattern?oldformat=true)
+        - Factory [Wikipedia](https://en.wikipedia.org/wiki/Factory_method_pattern). Creating an object often requires complex processes not appropriate to include within a composing object. The object's creation may lead to a significant duplication of code, may require information not accessible to the composing object, may not provide a sufficient level of abstraction, or may otherwise not be part of the composing object's concerns. The factory method design pattern handles these problems by defining a separate method for creating the objects, which subclasses can then override to specify the derived type of product that will be created. The factory method pattern relies on inheritance, as object creation is delegated to subclasses that implement the factory method to create objects.
 
-        - Singleton [Wikipedia](https://en.wikipedia.org/wiki/Singleton_pattern)
+        - Singleton [Wikipedia](https://en.wikipedia.org/wiki/Singleton_pattern).
           A singleton is a class that can only be instantiated once. This singleton pattern restricts the instantiation of a class to one object. This is useful when exactly one object is needed to coordinate actions across the system. The concept is sometimes generalized to systems that operate more efficiently when only one object exists, or that restrict the instantiation to a certain number of objects.
 
     - Structural patterns
-        - Adapter [Wikipedia](https://en.wikipedia.org/wiki/Adapter_pattern?oldformat=true)
-        - Decorator [Wikipedia](https://en.wikipedia.org/wiki/Decorator_pattern?oldformat=true)
-        - Facade [Wikipedia](https://en.wikipedia.org/wiki/Facade_pattern?oldformat=true)
+        - Adapter [Wikipedia](https://en.wikipedia.org/wiki/Adapter_pattern). The adapter pattern is a software design pattern (also known as wrapper, an alternative naming shared with the decorator pattern) that allows the interface of an existing class to be used as another interface. It is often used to make existing classes work with others without modifying their source code. An example is an adapter that converts the interface of a Document Object Model of an XML document into a tree structure that can be displayed.
+        - Decorator [Wikipedia](https://en.wikipedia.org/wiki/Decorator_pattern). The decorator pattern is a design pattern that allows behavior to be added to an individual object, dynamically, without affecting the behavior of other objects from the same class. The decorator pattern is often useful for adhering to the Single Responsibility Principle, as it allows functionality to be divided between classes with unique areas of concern. The decorator pattern is structurally nearly identical to the chain of responsibility pattern, the difference being that in a chain of responsibility, exactly one of the classes handles the request, while for the decorator, all classes handle the request.
+        - Facade [Wikipedia](https://en.wikipedia.org/wiki/Facade_pattern). Facade design pattern is commonly used when a system is very complex or difficult to understand because the system has a large number of interdependent classes or because its source code is unavailable. This pattern hides the complexities of the larger system and provides a simpler interface to the client. It typically involves a single wrapper class that contains a set of members required by the client. These members access the system on behalf of the facade client and hide the implementation details.
     - Behavioural patterns
-        - Chain of responsibility [Wikipedia](https://en.wikipedia.org/wiki/Chain-of-responsibility_pattern?oldformat=true)
-        - Iterator [Wikipedia](https://en.wikipedia.org/wiki/Iterator_pattern?oldformat=true)
-        - Strategy [Wikipedia](https://en.wikipedia.org/wiki/Strategy_pattern?oldformat=true)
+        - Chain of responsibility [Wikipedia](https://en.wikipedia.org/wiki/Chain-of-responsibility_pattern). Is a design pattern consisting of a source of command objects and a series of processing objects. Each processing object contains logic that defines the types of command objects that it can handle; the rest are passed to the next processing object in the chain. A mechanism also exists for adding new processing objects to the end of this chain. Thus, the chain of responsibility is an object oriented version of the if ... else if ... else if ....... else ... endif idiom, with the benefit that the condition–action blocks can be dynamically rearranged and reconfigured at runtime. The chain-of-responsibility pattern is structurally nearly identical to the decorator pattern, the difference being that for the decorator, all classes handle the request, while for the chain of responsibility, exactly one of the classes in the chain handles the request.
+        - Iterator [Wikipedia](https://en.wikipedia.org/wiki/Iterator_pattern). The essence of the Iterator Pattern is to "Provide a way to access the elements of an aggregate object sequentially without exposing its underlying representation."
+        - Strategy [Wikipedia](https://en.wikipedia.org/wiki/Strategy_pattern). The strategy pattern (also known as the policy pattern) is a behavioral software design pattern that enables selecting an algorithm at runtime. Instead of implementing a single algorithm directly, code receives run-time instructions as to which in a family of algorithms to use. Strategy lets the algorithm vary independently from clients that use it. Strategy is one of the patterns included in the influential book Design Patterns by Gamma et al. that popularized the concept of using design patterns to describe how to design flexible and reusable object-oriented software. Deferring the decision about which algorithm to use until runtime allows the calling code to be more flexible and reusable. 
+        - Observer [Wikipedia](https://en.wikipedia.org/wiki/Observer_pattern). The observer pattern is a software design pattern in which an object, called the subject, maintains a list of its dependents, called observers, and notifies them automatically of any state changes, usually by calling one of their methods. It is mainly used to implement distributed event handling systems, in "event driven" software. Most modern languages such as C# have built in "event" constructs which implement the observer pattern components, for easy programming and short code.
 
 #### Collections and Generics
 
@@ -447,18 +602,18 @@ It is also a good practice to annotate overridden methods with `@Override` to ma
 
 * Do objects get passed by reference or value in Java? Elaborate on that.
     - In Java all primitives and objects are passed by value, meaning that their copy will be manipulated in the receiving method. But there is a caveat - when you pass an object reference into a method, a *copy of this reference* is made, so it still points to the same object. This means, that any changes that you make to the insides of this object are retained, when the method exits.
+
         ```java
         public class Pointer {
-
             int innerField;
-
             public Pointer(int a) {
                 this.innerField = a;
             }
         }
         ```
+        
         ```java
-            public class ValueAndReference {
+        public class ValueAndReference {
 
             public static void main(String[] args) {
 
@@ -484,7 +639,8 @@ It is also a good practice to annotate overridden methods with `@Override` to ma
             }
         }
         ```
-        Will output:
+       Will output:
+       
         ```java
             Before:
 
@@ -540,10 +696,13 @@ It is also a good practice to annotate overridden methods with `@Override` to ma
 #### Concurrency
 
 * What does the keyword `synchronized` mean? [Link](https://stackoverflow.com/a/1085745/2621950)
+	- `synchronized` methods enable a simple strategy for preventing thread interference and memory consistency errors: if an object is visible to more than one thread, all reads or writes to that object's variables are done through synchronized methods.
 
 * What is a `ThreadPoolExecutor`? [Mindorks](https://blog.mindorks.com/threadpoolexecutor-in-android-8e9d22330ee3)
+	- The `ThreadPoolExecutor` is an implementation of the `ExecutorService` interface. The ThreadPoolExecutor executes the given task (Callable or Runnable) using one of its internally pooled threads. The thread pool contained inside the ThreadPoolExecutor can contain a varying amount of threads. The number of threads in the pool is determined by these variables: `corePoolSize` and  `maximumPoolSize`. If less than corePoolSize threads are created in the the thread pool when a task is delegated to the thread pool, then a new thread is created, even if idle threads exist in the pool. If the internal queue of tasks is full, and corePoolSize threads or more are running, but less than maximumPoolSize threads are running, then a new thread is created to execute the task.
 
 * What is `volatile` modifier? [Jenkov](http://tutorials.jenkov.com/java-concurrency/volatile.html)
+	- Declaring a volatile Java variable means: The value of this variable will never be cached thread-locally: all reads and writes will go straight to "main memory"; Access to the variable acts as though it is enclosed in a synchronized block, synchronized on itself.
 
 #### Exceptions
 
@@ -711,6 +870,7 @@ It is also a good practice to annotate overridden methods with `@Override` to ma
 	}
 	```
   - `Finalize` is a method used to perform clean up processing just before object is garbage collected.
+
 	```java
 	class FinalizeExample {
 		public void finalize() {
