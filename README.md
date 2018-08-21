@@ -395,20 +395,20 @@
             </table>
             
 	```java
-	static void bubbleSort(int[] arr) {  
-		int n = arr.length;
-		int temp = 0;
-      	for(int i=0; i < n; i++) {
-	      for(int j=1; j < (n-i); j++) {
-	      		if (arr[j-1] > arr[j]) {
-	      			// swap elements  
-	      			temp = arr[j-1];  
-                 arr[j-1] = arr[j];  
-                 arr[j] = temp;
-             }
-          }
-		}
-   }
+	static void bubbleSort(int[] arr) {
+        int n = arr.length;
+        int temp = 0;
+        for (int i = 0; i < n; i++) {
+            for (int j = 1; j < (n - i); j++) {
+                if (arr[j - 1] > arr[j]) {
+                    // swap elements
+                    temp = arr[j - 1];
+                    arr[j - 1] = arr[j];
+                    arr[j] = temp;
+                }
+            }
+        }
+    }
 	```
 	
     - Selection sort [Wikipedia](https://www.wikiwand.com/en/Selection_sort) 
@@ -434,18 +434,18 @@
             
 	```java
 	public static void selectionSort(int[] arr) {
-		for (int i = 0; i < arr.length - 1; i++) {  
-			int index = i;
-			for (int j = i + 1; j < arr.length; j++) {
-				if (arr[j] < arr[index]) {
-					index = j;//searching for lowest index  
-				}
-			}
-			int smallerNumber = arr[index];   
-       	arr[index] = arr[i];  
-       	arr[i] = smallerNumber;  
-   		}  
-	}
+        for (int i = 0; i < arr.length - 1; i++) {
+            int index = i;
+            for (int j = i + 1; j < arr.length; j++) {
+                if (arr[j] < arr[index]) {
+                    index = j;//searching for lowest index
+                }
+            }
+            int smallerNumber = arr[index];
+            arr[index] = arr[i];
+            arr[i] = smallerNumber;
+        }
+    }
 	```
 	
     - Insertion sort [Wikipedia](https://en.wikipedia.org/wiki/Insertion_sort?oldformat=true)
@@ -614,6 +614,20 @@
                 
     - There are, of course, more sorting algorithms and their modifications. We strongly recommend all readers to familiarize themselves with a couple more, because knowing algorithms is very important quality of a candidate, applying for a job and it shows understanding of what is happening "under the hood".
 
+* Useful Algorithms
+
+	- Get all possible permutations of a String
+
+	```java
+	private static void permutation(String prefix, String str) {
+		int n = str.length();
+		if (n == 0) System.out.println(prefix);
+		else {
+			for (int i = 0; i < n; i++)
+				permutation(prefix + str.charAt(i), str.substring(0, i) + str.substring(i+1, n));
+		}
+	}
+	```
 
 * Dynamic Programming
 
