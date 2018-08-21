@@ -708,7 +708,29 @@
 
 * What is memory leak and how does Java handle it?
 
-* What are strong, soft, weak and phantom references in Java?
+* What are strong, soft, weak and phantom references in Java? 
+	- Java provides two different types/classes of Reference Objects: strong and weak. Weak Reference Objects can be further divided into soft and phantom. Let's go point by point.
+		> Strong Reference Object
+
+		```java
+		StringBuilder builder = new StringBuilder();
+		```
+		
+		- This is the default type/class of Reference Object, if not differently specified: builder is a strong Reference Object. This kind of reference makes the referenced object not eligible for GC. That is, whenever an object is referenced by a chain of strong Reference Objects, it cannot be garbage collected.
+
+		> Weak Reference Object
+
+		```java
+		WeakReference<StringBuilder> weakBuilder = new WeakReference<StringBuilder>(builder);
+		```
+		
+		- Weak Reference Objects are not the default type/class of Reference Object and to be used they should be explicitly specified like in the above example. This kind of reference makes the reference object eligible for GC. That is, in case the only reference reachable for the StringBuilder object in memory is, actually, the weak reference, then the GC is allowed to garbage collect the StringBuilder object. When an object in memory is reachable only by Weak Reference Objects, it becomes automatically eligible for GC.
+
+		> Levels of Weakness
+
+		- Two different levels of weakness can be enlisted: soft and phantom. A soft Reference Object is basically a weak Reference Object that remains in memory a bit more: normally, it resists GC cycle until memory is available and there is no risk of OutOfMemoryError (in that case, it can be removed).
+		- On the other hand, a phantom Reference Object is useful only to know exactly when an object has been effectively removed from memory: normally they are used to fix weird finalize() revival/resurrection behavior, since they actually do not return the object itself but only help in keeping track of their memory presence.
+		- Weak Reference Objects are ideal to implement cache modules. In fact, a sort of automatic eviction can be implemented by allowing the GC to clean up memory areas whenever objects/values are no longer reachable by strong references chain. An example is the WeakHashMap retaining weak keys.
 
 #### Concurrency
 
@@ -763,7 +785,9 @@
                 }
             }
         ```
+        
     - Parcelable requires a bit more work:
+
         ```java
             public class User implements Parcelable {
 
@@ -846,7 +870,7 @@
 
 * What are anonymous classes? [OracleDoc](https://docs.oracle.com/javase/tutorial/java/javaOO/anonymousclasses.html) It is an inner class without a name and for which only a single object is created. An anonymous inner class can be useful when making an instance of an object with certain “extras” such as overloading methods of a class or interface, without having to actually subclass a class.
 
-* What is the difference between using `==` and `.equals` on an object?[GeeksForGeeks](http://www.geeksforgeeks.org/difference-equals-method-java/) Main difference between .equals() method and == operator is that one is method and other is operator. We can use == operators for reference comparison (address comparison) and .equals() method for content comparison. In simple words, == checks if both objects point to the same memory location whereas .equals() evaluates to the comparison of values in the objects. If a class does not override the equals method, then by default it uses equals(Object o) method of the closest parent class that has overridden this method.
+* What is the difference between using `==` and `.equals` on an object? [GeeksForGeeks](http://www.geeksforgeeks.org/difference-equals-method-java/) Main difference between .equals() method and == operator is that one is method and other is operator. We can use == operators for reference comparison (address comparison) and .equals() method for content comparison. In simple words, == checks if both objects point to the same memory location whereas .equals() evaluates to the comparison of values in the objects. If a class does not override the equals method, then by default it uses equals(Object o) method of the closest parent class that has overridden this method.
 
 * What is the `hashCode()` and `equals()` used for? In java equals() method is used to compare equality of two Objects. The equality can be compared in two ways:
 
@@ -936,7 +960,7 @@
 
 * What is the difference between fail-fast and fail-safe iterators in Java?
 	- Typically, weak consistency (fail-safe) means that if a collection is modified concurrently with an iteration, the guarantees of what the iteration sees are weaker. 
-	- "Fail fast" means: it may fail ... and the failure condition is checked aggressively so that the failure condition is (where possible1) detected before damage can be done. In Java, a fail-fast iterator fails by throwing a `ConcurrentModificationException`.
+	- "Fail fast" means: it may fail ... and the failure condition is checked aggressively so that the failure condition is (where possible) detected before damage can be done. In Java, a fail-fast iterator fails by throwing a `ConcurrentModificationException`.
 
 * What is Java NIO? [Link](http://tutorials.jenkov.com/java-nio/index.html)
 
@@ -950,13 +974,13 @@
 		- Services
 		- Broadcast receivers
 		- Content providers
-	- Each type serves a distinct purpose and has a distinct lifecycle that defines how the component is created and destroyed. The following sections describe the four types of app components.
+	- Each type serves a distinct purpose and has a distinct lifecycle that defines how the component is created and destroyed.
 
 * What is the structure of an Android Application?
 <table class="tablecontent"><tbody><tr><th>Folder Name</th><th>Description</th></tr><tr><td>src</td><td>The 'src' stands for <b>Source Code.</b> It contains the Java Source files.</td></tr><tr><td>gen</td><td>The 'gen' stands for <b>Generated Java Library.</b> This library is for Android internal use only.</td></tr><tr><td>Android 2.2</td><td>The Android Framework Library is stored here.</td></tr><tr><td>assets</td><td>It is used to store raw asset files.</td></tr><tr><td>libs</td><td>It contains private libraries.</td></tr><tr><td>res</td><td>The 'res' stands for <b>Resource file.</b> It can store resource files such as pictures, XML files, etc. It contains some additional folders such as Drawable, Layout and Values.<br><br><b>anim: </b>It is used for XML files that are compiled into animation objects.<br><b>color:</b> It is used for XML files that describe colors.<br><b>drawable:</b> It is used to store various graphics files. In Android project structure,<br><br><b>there are three types of drawable folders,</b><br>1. drawable-mdpi<br>2. drawable-hdpi<br>3. drawable-ldpi<br><br>The above drawable folders are required in order to adapt to different screen resolutions.<br><br><b>layout:</b> It is used for placing the XML layout files, which defines how various Android objects such as textbox, buttons, etc. are organized on the screen.<br><br><b>menu:</b> It is used for defining the XML files in the application menu.<br><br><b>raw:</b> The 'raw' stands for <b>Raw Asset Files.</b> These files are referenced from the application using a resource identifier in the R class.<br><b>For example,</b> good place for media is MP3 or Ogg files.<br><br><b>values:</b> It is used for XML files which stores various string values, such as titles, labels, etc.<br><br><b>xml:</b> It is used for configuring the application components.</td></tr><tr><td>AndroidManifest.xml</td><td>This file indicates the Android definition file. This file contains the information about the Android application such as minimum Android version, permission to access Android device capabilities such as Internet access permission, phone permission etc.</td></tr><tr><td>default.properties</td><td>This file contains the project settings, such as build the target. Do not edit this file manually. It should be maintained in a Source Revision Control System.</td></tr><tr><td>Proguard.cfg</td><td>This file defines how ProGuard optimizes and makes your code unclear.</td></tr><tr><td>MainLayout.xml</td><td>This file describes the layout of the page. So all the components such as textboxes, labels, radio buttons, etc. are displaying on the application screen.</td></tr><tr><td>Activity class</td><td>The application occupies the entire device screen which needs at least one class inherits from the Activity class. OnCreate() method initiates the application and loads the layout page.</td></tr></tbody></table>
 
 * What is `Context`? How is it used? [Medium](https://medium.com/p/understanding-context-in-android-application-330913e32514)
-	- It's the context of current state of the application/object. It lets newly-created objects understand what has been going on. Typically you call it to get information regarding another part of your program (activity and package/application). You can get the context by invoking getApplicationContext(), getContext(), getBaseContext() or this (when in a class that extends from Context, such as the Application, Activity, Service and IntentService classes).
+	- It's the context of current state of the application/object. It lets newly-created objects understand what has been going on. Typically you call it to get information regarding another part of your program (activity and package/application). You can get the context by invoking `getApplicationContext()`, `getContext()`, `getBaseContext()` or `this` (when in a class that extends from Context, such as the Application, Activity, Service and IntentService classes).
 
 * What is `AndroidManifest.xml`?
 	- Every application must have an AndroidManifest.xml file (with precisely that name) in its root directory. The manifest presents essential information about the application to the Android system, information the system must have before it can run any of the application's code.
@@ -964,6 +988,8 @@
 * What is `Application` class?
 	- The Application class in Android is the base class within an Android app that contains all other components such as activities and services. The Application class, or any subclass of the Application class, is instantiated before any other class when the process for your application/package is created.
 
+		![ApplicationLifeCycle](https://developer.sony.com/reference/docs/sony-addon-sdk/images/smallapp_lifecycle.png)
+	
 #### Activity
 
 * What is `Activity`? 
@@ -997,17 +1023,23 @@
 
 * How would you communicate between two Fragments? [Android Official](https://developer.android.com/training/basics/fragments/communicating.html)
 
-* What is retained `Fragment`? [AndroidDesignPatterns](https://www.androiddesignpatterns.com/2013/04/retaining-objects-across-config-changes.html)
 	-  All Fragment-to-Fragment communication is done either through a shared ViewModel or through the associated Activity. Two Fragments should never communicate directly.
 	-  ViewModel objects are designed to outlive specific instantiations of views or LifecycleOwners. This design also means you can write tests to cover a ViewModel more easily as it doesn't know about view and Lifecycle objects. ViewModel objects can contain LifecycleObservers, such as LiveData objects. However ViewModel objects must never observe changes to lifecycle-aware observables, such as LiveData objects. If the ViewModel needs the Application context, for example to find a system service, it can extend the AndroidViewModel class and have a constructor that receives the Application in the constructor, since Application class extends Context.
 
-![ViewModelLifeCycle](https://developer.android.com/images/topic/libraries/architecture/viewmodel-lifecycle.png)
+		![ViewModelLifeCycle](https://developer.android.com/images/topic/libraries/architecture/viewmodel-lifecycle.png)
+	
+* What is retained `Fragment`? [AndroidDesignPatterns](https://www.androiddesignpatterns.com/2013/04/retaining-objects-across-config-changes.html)
+	- "retained" means that the fragment will not be destroyed on configuration changes. That is, the Fragment will be retained even if the configuration change causes the underlying Activity to be destroyed.
+	- Just like Activitys, Fragments may be destroyed by the system when memory resources are low. Whether you have your fragments retain their instance state across configuration changes will have no effect on whether or not the system will destroy the Fragments once you leave the Activity. If you leave the Activity (i.e. by pressing the home button), the Fragments may or may not be destroyed. If you leave the Activity by pressing the back button (thus, calling finish() and effectively destroying the Activity), all of the Activitys attached Fragments will also be destroyed.
+	- Retained fragments can be quite useful for propagating state information — especially thread management — across activity instances. For example, a fragment can serve as a host for an instance of Thread or AsyncTask, managing its operation. In general, I would treat it similarly to using onConfigurationChanged with an Activity... don't use it as a bandaid just because you are too lazy to implement/handle an orientation change correctly. Only use it when you need to.
 
 #### Views and ViewGroups
 
 * What is `View` in Android?
 	- View is a basic building block of UI (User Interface) in android. A view is a small rectangular box which responds to user inputs. Eg: EditText , Button , CheckBox , etc.. ViewGroup is a invisible container of other views (child views) and other viewgroups.
 
+		![ViewLifeCycle](https://codentrick.com/content/images/2015/07/android_view_lifecycle.png)
+	
 * Difference between `View.GONE` and `View.INVISIBLE`?
 	- `View.INVISIBLE` This view is invisible, but it still takes up space for layout purposes. `View.GONE` This view is invisible, and it doesn't take any space for layout purposes.
 
@@ -1081,17 +1113,17 @@ app:layout_constraintBottom_toBottomOf="@+id/view1"
 	- An Intent is basically a message to say you did or want something to happen. Depending on the intent, apps or the OS might be listening for it and will react accordingly. Think of it as a blast email to a bunch of friends, in which you tell your friend John to do something, or to friends who can do X ("intent filters"), to do X. The other folks will ignore the email, but John (or friends who can do X) will react to it.
 
 * What is an Implicit `Intent`?
-	- Is something which is sent from one activity to inbuilt android activity in android. When we work with implicit intents, we generally specify the action which we want to perform and optionally some data required for that action. Data is typically expressed as a Uri which can represent an image in the gallery or person in the contacts database. Implicit Intents do not directly specify the Android components which should be called , it only specifies action to be performed.An Uri can be used with the implicit intent to specify data type.
+	- Is something which is sent from one activity to inbuilt android activity in android. When we work with implicit intents, we generally specify the action which we want to perform and optionally some data required for that action. Data is typically expressed as a Uri which can represent an image in the gallery or person in the contacts database. Implicit Intents do not directly specify the Android components which should be called , it only specifies action to be performed. An Uri can be used with the implicit intent to specify data type.
 
 	```java
-	Intent intent = new Intent(ACTION_VIEW,Uri.parse("http://www.google.com");
+	Intent intent = new Intent(ACTION_VIEW, Uri.parse("http://www.google.com");
 	```
 
 * What is an Explicit `Intent`?
 	- Explicit intents are used in the application itself wherein one activity can switch to other activty.
 
 	```java
-	Intent intent = new Intent(this,Target.class); 
+	Intent intent = new Intent(this, Target.class); 
 	```
 	
 	- this causes switching of activity from current context to the target activity. Explicit Intents can also be used to pass data to other activity using putExtra method and retrieved by target activity by getIntent().getExtras() methods.
@@ -1100,7 +1132,7 @@ app:layout_constraintBottom_toBottomOf="@+id/view1"
 	- A broadcast receiver is a component that responds to system-wide broadcast announcements. Many broadcasts originate from the system—for example, a broadcast announcing that the screen has turned off, the battery is low, or a picture was captured. Applications can also initiate broadcasts—for example, to let other applications know that some data has been downloaded to the device and is available for them to use. Although broadcast receivers don't display a user interface, they may create a status bar notification to alert the user when a broadcast event occurs.
 
 * What is a `LocalBroadcastManager`? [Developer Android](https://developer.android.com/reference/android/support/v4/content/LocalBroadcastManager.html)
-	- Helper to register for and send broadcasts of Intents to local objects within your process. This has a number of advantages over sending global broadcasts with sendBroadcast(Intent):
+	- Helper to register for and send broadcasts of Intents to local objects within your process. This has a number of advantages over sending global broadcasts with `sendBroadcast(Intent)`:
 		- You know that the data you are broadcasting won't leave your app, so don't need to worry about leaking private data.
 		- It is not possible for other applications to send these broadcasts to your app, so you don't need to worry about having security holes they can exploit.
 		- It is more efficient than sending a global broadcast through the system.
@@ -1144,16 +1176,30 @@ app:layout_constraintBottom_toBottomOf="@+id/view1"
 	- If you give the foreign application an Intent, it will execute your Intent with its own permissions. But if you give the foreign application a PendingIntent, that application will execute your Intent using your application's permission.
 
 * What are the different types of Broadcasts?
-	- Normal broadcasts:-Normal broadcasts (sent with Context.sendBroadcast) are completely asynchronous. All receivers of the broadcast are run in an undefined order, often at the same time. This is more efficient, but means that receivers cannot use the result or abort APIs included here.
+	- Normal broadcasts: Normal broadcasts (sent with Context.sendBroadcast) are completely asynchronous. All receivers of the broadcast are run in an undefined order, often at the same time. This is more efficient, but means that receivers cannot use the result or abort APIs included here.
 
-	- Ordered broadcasts :- Ordered Broadcast is the type of broadcast which is sent in a synchronous manner i.e. one by one to each listener. Android sendOrderedBroadcast method falls in Context class of Android, the purpose of this method is to broadcast to listening receivers in a serialized manner and receive the result back to the calling activity. 
+	- Ordered broadcasts: Ordered Broadcast is the type of broadcast which is sent in a synchronous manner i.e. one by one to each listener. Android sendOrderedBroadcast method falls in Context class of Android, the purpose of this method is to broadcast to listening receivers in a serialized manner and receive the result back to the calling activity. 
 
-	- Sticky broadcasts:- A Sticky Broadcast is a Broadcast that stays around following the moment it is announced to the system. Most Broadcasts are sent, processed within the system and become quickly inaccessible. However, Sticky Broadcasts announce information that remains accessible beyond the point at which they are processed. A typical example is the battery level Broadcast. Unlike most Broadcasts, the battery level can be retrieved within applications beyond the point at which it was sent through the system. This means that apps can find out whatever the last battery level broadcast was.
+	- Sticky broadcasts: A Sticky Broadcast is a Broadcast that stays around following the moment it is announced to the system. Most Broadcasts are sent, processed within the system and become quickly inaccessible. However, Sticky Broadcasts announce information that remains accessible beyond the point at which they are processed. A typical example is the battery level Broadcast. Unlike most Broadcasts, the battery level can be retrieved within applications beyond the point at which it was sent through the system. This means that apps can find out whatever the last battery level broadcast was.
 
 #### Services
 
 * What is `Service`?
 	- A Service is an application component that can perform long-running operations in the background, and it doesn't provide a user interface. Another application component can start a service, and it continues to run in the background even if the user switches to another application. Additionally, a component can bind to a service to interact with it and even perform interprocess communication (IPC). For example, a service can handle network transactions, play music, perform file I/O, or interact with a content provider, all from the background.
+
+	- These are the three different types of services:
+
+	> Foreground
+	
+	- A foreground service performs some operation that is noticeable to the user. For example, an audio app would use a foreground service to play an audio track. Foreground services must display a Notification. Foreground services continue running even when the user isn't interacting with the app.
+
+	> Background
+	
+	- A background service performs an operation that isn't directly noticed by the user. For example, if an app used a service to compact its storage, that would usually be a background service. Note: If your app targets API level 26 or higher, the system imposes restrictions on running background services when the app itself isn't in the foreground. In most cases like this, your app should use a scheduled job instead.
+
+	> Bound
+	
+	- A service is bound when an application component binds to it by calling bindService(). A bound service offers a client-server interface that allows components to interact with the service, send requests, receive results, and even do so across processes with interprocess communication (IPC). A bound service runs only as long as another application component is bound to it. Multiple components can bind to the service at once, but when all of them unbind, the service is destroyed.
 
 * `Service` vs `IntentService`. [StackOverflow](https://stackoverflow.com/a/15772151/5153275)
 	- `Service` is a base class of service implementation. `Service` class is run in the application’s main thread which may reduce the application performance. Thus, `IntentService`, which is a direct subclass of `Service` is borned to make things easier. The `IntentService` is used to perform a certain task in the background. Once done, the instance of `IntentService` terminate itself automatically. Examples for its usage would be to download a certain resources from the Internet.
