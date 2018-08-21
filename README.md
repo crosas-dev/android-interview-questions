@@ -137,6 +137,129 @@
 		- The right sub-tree of a node has a key greater than to its parent node's key.
 	- BST is a collection of nodes arranged in a way where they maintain BST properties. Each node has a key and an associated value. While searching, the desired key is compared to the keys in BST and if found, the associated value is retrieved.
 
+	- Operations :
+
+		- Search 
+
+		```java
+		public Node search(Node root, int key) {
+		    // Base Cases: root is null or key is present at root
+		    if (root==null || root.key==key)
+		        return root;
+		    // val is greater than root's key
+		    if (root.key > key)
+		        return search(root.left, key);
+		    // val is less than root's key
+		    return search(root.right, key);
+		}
+		```
+	
+		- Insert
+
+		```java
+		// This method mainly calls insertRec()
+	    void insert(int key) {
+	       root = insertRec(root, key);
+	    }
+	     
+	    /* A recursive function to insert a new key in BST */
+	    Node insertRec(Node root, int key) {
+	        /* If the tree is empty, return a new node */
+	        if (root == null) {
+	            root = new Node(key);
+	            return root;
+	        }
+	        /* Otherwise, recur down the tree */
+	        if (key < root.key)
+	            root.left = insertRec(root.left, key);
+	        else if (key > root.key)
+	            root.right = insertRec(root.right, key);
+	 
+	        /* return the (unchanged) node pointer */
+	        return root;
+	    }
+		```
+	
+		- Delete
+
+		```java
+		// This method mainly calls deleteRec()
+		void deleteKey(int key) {
+			root = deleteRec(root, key);
+		}
+	 
+	    /* A recursive function to insert a new key in BST */
+	    Node deleteRec(Node root, int key) {
+	        /* Base Case: If the tree is empty */
+	        if (root == null)  return root;
+	        /* Otherwise, recur down the tree */
+	        if (key < root.key)
+	            root.left = deleteRec(root.left, key);
+	        else if (key > root.key)
+	            root.right = deleteRec(root.right, key);
+	        // if key is same as root's key, then This is the node
+	        // to be deleted
+	        else {
+	            // node with only one child or no child
+	            if (root.left == null)
+	                return root.right;
+	            else if (root.right == null)
+	                return root.left;
+	            // node with two children: Get the inorder successor (smallest
+	            // in the right subtree)
+	            root.key = minValue(root.right);
+	            // Delete the inorder successor
+	            root.right = deleteRec(root.right, root.key);
+	        }
+	        return root;
+	    }
+	    ```
+
+		- Pre Order traversal :
+		
+		```java
+		void printPreorder(Node node) {
+	        if (node == null)
+	            return;
+	        /* then print the data of node */
+	        System.out.print(node.key + " ");
+	        /* first recur on left child */
+	        printPreorder(node.left);
+	        /* now recur on right child */
+	        printPreorder(node.right);
+	    }
+		```
+	
+		- In Order traversal :
+		
+		```java
+		void printInorder(Node node) {
+	        if (node == null)
+	            return;
+	        /* first recur on left child */
+	        printInorder(node.left);
+	        /* then print the data of node */
+	        System.out.print(node.key + " ");
+	        /* now recur on right child */
+	        printInorder(node.right);
+	    }
+		```
+		
+		- Post Order traversal :
+		
+		```java
+		void printPostorder(Node node) {
+	        if (node == null)
+	            return;
+	        /* first recur on left child */
+	        printPostorder(node.left);
+	        /* now recur on right child */
+	        printPostorder(node.right);
+	        /* then print the data of node */
+	        System.out.print(node.key + " ");
+	    }
+		```
+
 * Hash Table or Hash Map
 	- A Hash Table is a data structure that implements an associative array abstract data type, a structure that can map keys to values. A hash table uses a hash function to compute an index into an array of buckets or slots, from which the desired value can be found. Ideally, the hash function will assign each key to a unique bucket, but most hash table designs employ an imperfect hash function, which might cause hash collisions where the hash function generates the same index for more than one key. Such collisions must be accommodated in some way.
 	- In a well-dimensioned hash table, the average cost (number of instructions) for each lookup is independent of the number of elements stored in the table. Many hash table designs also allow arbitrary insertions and deletions of key-value pairs, at (amortized) constant average cost per operation. In many situations, hash tables turn out to be on average more efficient than search trees or any other table lookup structure. For this reason, they are widely used in many kinds of computer software, particularly for associative arrays, database indexing, caches, and sets.
@@ -270,6 +393,24 @@
                     <td align="center">O(1)</td>
                 </tr>
             </table>
+            
+	```java
+	static void bubbleSort(int[] arr) {  
+		int n = arr.length;
+		int temp = 0;
+      	for(int i=0; i < n; i++) {
+	      for(int j=1; j < (n-i); j++) {
+	      		if (arr[j-1] > arr[j]) {
+	      			// swap elements  
+	      			temp = arr[j-1];  
+                 arr[j-1] = arr[j];  
+                 arr[j] = temp;
+             }
+          }
+		}
+   }
+	```
+	
     - Selection sort [Wikipedia](https://www.wikiwand.com/en/Selection_sort) 
         - Firstly, selection sort assumes that the first element of the array to be sorted is the smallest, but to confirm this, it iterates over all other elements to check, and if it finds one, it gets defined as the smallest one. When the data ends, the element, that is currently found to be the smallest, is put in the beginning of the array. This sorting algorithm is quite straightforward, but still not that efficient on larger data sets, because to assign just one element to its' place, it needs to go over all data.
             <table>
@@ -290,6 +431,23 @@
                 <td align="center">O(1)</td>
             </tr>
             </table>
+            
+	```java
+	public static void selectionSort(int[] arr) {
+		for (int i = 0; i < arr.length - 1; i++) {  
+			int index = i;
+			for (int j = i + 1; j < arr.length; j++) {
+				if (arr[j] < arr[index]) {
+					index = j;//searching for lowest index  
+				}
+			}
+			int smallerNumber = arr[index];   
+       	arr[index] = arr[i];  
+       	arr[i] = smallerNumber;  
+   		}  
+	}
+	```
+	
     - Insertion sort [Wikipedia](https://en.wikipedia.org/wiki/Insertion_sort?oldformat=true)
         - Insertion sort is another example of an algorithm, that is not that difficult to implement, but is also not that efficient. To do its' job, it "grows" sorted portion of data, by "inserting" new encountered elements into already (innerly) sorted part of the array, which consists of previously encountered elements. This means that in best case (data is already sorted) it can confirm that its' job is done in Ω(n) operations, while, if all encountered elements are not in their required order as many as O(n^2) operations may be needed.
             <table>
@@ -310,6 +468,21 @@
                 <td align="center">O(1)</td>
             </tr>
             </table>
+            
+	```java
+	public static void insertionSort(int array[]) {  
+        int n = array.length;  
+        for (int j = 1; j < n; j++) {  
+            int key = array[j];  
+            int i = j - 1;  
+            while ((i > -1) && ( array [i] > key )) {  
+                array [i+1] = array [i];  
+                i--;  
+            }  
+            array[i+1] = key;  
+        }  
+    }
+	```
     - Merge sort [Wikipedia](https://en.wikipedia.org/wiki/Merge_sort?oldformat=true)
         - This is a "divide and conquer" algorithm, meaning it recursively "divides" given array in to smaller parts (up to 1 element) and then sorts those parts, combining them with each other. This approach allows merge sort to achieve very high speed, while  doubling required space, of course, but today memory space is more available than it was a couple of years ago, so this trade-off is considered acceptable.   
                 <table>
@@ -330,6 +503,51 @@
                 <td align="center">O(n)</td>
             </tr>
             </table>
+            
+	```java
+	public static void merge(int arr[], int beg, int mid, int end) {
+        int l = mid - beg + 1;
+        int r = end - mid;
+        int leftArray[] = new int[l];
+        int rightArray[] = new int[r];
+        for (int i = 0; i < l; ++i)
+            leftArray[i] = arr[beg + i];
+        for (int j = 0; j < r; ++j)
+            rightArray[j] = arr[mid + 1 + j];
+        int i = 0, j = 0;
+        int k = beg;
+        while (i < l && j < r) {
+            if (leftArray[i] <= rightArray[j]) {
+                arr[k] = leftArray[i];
+                i++;
+            } else  {
+                arr[k] = rightArray[j];
+                j++;
+            }
+            k++;
+        }
+        while (i < l) {
+            arr[k] = leftArray[i];
+            i++;
+            k++;
+        }
+        while (j < r) {
+            arr[k] = rightArray[j];
+            j++;
+            k++;
+        }
+    }
+
+    public static void sort(int arr[], int beg, int end) {
+        if (beg < end) {
+            int mid = (beg + end) / 2;
+            sort(arr, beg, mid);
+            sort(arr, mid + 1, end);
+            merge(arr, beg, mid, end);
+        }
+    }
+	```
+
     - Quicksort [Wikipedia](https://en.wikipedia.org/wiki/Quicksort?oldformat=true)
         - Quicksort is considered, well, quite quick. When implemented correctly, it can be a significant number of times faster than its' main competitors. This algorithm is also of "divide and conquer" family and its' first step is to choose a "pivot" element (choosing it randomly, statistically, minimizes the chance to get the worst performance), then by comparing elements to this pivot, moving it closer and closer to its' final place. During this process, the elements that are bigger are moved to the right side of it and smaller elements to the left. After this is done, quicksort repeats this process for subarrays on each side of placed pivot (does first step recursively), until the array is sorted.
                 <table>
@@ -350,7 +568,52 @@
                     <td align="center">O(1)</td>
                 </tr>
                 </table>  
+                
+	```java
+	public static int partition(int a[], int beg, int end) {
+        int left, right, temp, loc, flag;
+        loc = left = beg;
+        right = end;
+        flag = 0;
+        while (flag != 1) {
+            while ((a[loc] <= a[right]) && (loc != right))
+                right--;
+            if (loc == right)
+                flag = 1;
+            else if (a[loc] > a[right]) {
+                temp = a[loc];
+                a[loc] = a[right];
+                a[right] = temp;
+                loc = right;
+            }
+            if (flag != 1) {
+                while ((a[loc] >= a[left]) && (loc != left))
+                    left++;
+                if (loc == left)
+                    flag = 1;
+                else if (a[loc] < a[left]) {
+                    temp = a[loc];
+                    a[loc] = a[left];
+                    a[left] = temp;
+                    loc = left;
+                }
+            }
+        }
+        return loc;
+    }
+
+    static void quickSort(int a[], int beg, int end) {
+        int loc;
+        if (beg < end) {
+            loc = partition(a, beg, end);
+            quickSort(a, beg, loc - 1);
+            quickSort(a, loc + 1, end);
+        }
+    }
+	```
+                
     - There are, of course, more sorting algorithms and their modifications. We strongly recommend all readers to familiarize themselves with a couple more, because knowing algorithms is very important quality of a candidate, applying for a job and it shows understanding of what is happening "under the hood".
+
 
 * Dynamic Programming
 
@@ -1329,7 +1592,9 @@ app:layout_constraintBottom_toBottomOf="@+id/view1"
 			    public abstract UserDao userDao();
 			}
         ```
+        
 		- Entity: Represents a table within the database.
+
         ```java
 			@Entity
 			public class User {
@@ -1346,7 +1611,9 @@ app:layout_constraintBottom_toBottomOf="@+id/view1"
 			    // but they're required for Room to work.
 			}
         ```
+        
 		- DAO: Contains the methods used for accessing the database.
+
         ```java
 			@Dao
 			public interface UserDao {
