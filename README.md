@@ -614,7 +614,11 @@
                 
     - There are, of course, more sorting algorithms and their modifications. We strongly recommend all readers to familiarize themselves with a couple more, because knowing algorithms is very important quality of a candidate, applying for a job and it shows understanding of what is happening "under the hood".
 
-* Useful Algorithms
+* Dynamic Programming
+
+* Greedy Algorithm
+
+* String Manipulation
 
 	- Get all possible permutations of a String
 
@@ -629,11 +633,25 @@
 	}
 	```
 
-* Dynamic Programming
+	- The longest common subsequence (LCS) problem is the problem of finding the longest subsequence common to all sequences in a set of sequences (often just two sequences). It differs from the longest common substring problem: unlike substrings, subsequences are not required to occupy consecutive positions within the original sequences.
 
-* Greedy Algorithm
-
-* String Manipulation
+	```java
+	static int lcs(String s1, String s2) {
+		int size_1 = s1.length();
+		int size_2 = s2.length();
+		int[][] cmn = new int[size_1][size_2];
+		for (int y = 0; y < size_1; y++) {
+			for (int x = 0; x < size_2; x++) {
+				if (s1.charAt(y) == s2.charAt(x)) {
+					cmn[y][x] = (x == 0 || y == 0) ? 1 : cmn[y - 1][x - 1] + 1;
+				} else {
+					cmn[y][x] = Math.max(x == 0 ? 0 : cmn[y][x - 1], y == 0 ? 0 :cmn[y - 1][x]);
+				}
+			}
+		}
+		return cmn[size_1 - 1][size_2 - 1];
+	}
+	```
 
 * Pathfinding algorithms [Wikipedia](https://en.wikipedia.org/wiki/Greedy_algorithm?oldformat=true)
     - Dijkstra algorithm
