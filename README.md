@@ -645,7 +645,9 @@
 				if (s1.charAt(y) == s2.charAt(x)) {
 					cmn[y][x] = (x == 0 || y == 0) ? 1 : cmn[y - 1][x - 1] + 1;
 				} else {
-					cmn[y][x] = Math.max(x == 0 ? 0 : cmn[y][x - 1], y == 0 ? 0 :cmn[y - 1][x]);
+					int temp_1 = x == 0 ? 0 : cmn[y][x - 1];
+					int temp_2 = y == 0 ? 0 : cmn[y - 1][x];
+					cmn[y][x] = Math.max(temp_1, temp_2);
 				}
 			}
 		}
