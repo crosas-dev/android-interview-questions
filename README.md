@@ -627,8 +627,12 @@
 		int n = str.length();
 		if (n == 0) System.out.println(prefix);
 		else {
-			for (int i = 0; i < n; i++)
-				permutation(prefix + str.charAt(i), str.substring(0, i) + str.substring(i+1, n));
+			for (int i = 0; i < n; i++) {
+				String _prefix = prefix + str.charAt(i);
+				String _string = str.substring(0, i);
+				_string += str.substring(i + 1, n);
+				permutation(_prefix, _string);
+			}
 		}
 	}
 	```
@@ -643,7 +647,10 @@
 		for (int y = 0; y < size_1; y++) {
 			for (int x = 0; x < size_2; x++) {
 				if (s1.charAt(y) == s2.charAt(x)) {
-					cmn[y][x] = (x == 0 || y == 0) ? 1 : cmn[y - 1][x - 1] + 1;
+					int temp = 1;
+					if (x > 0 && y > 0)
+						temp = cmn[y - 1][x - 1] + 1;
+					cmn[y][x] = temp;
 				} else {
 					int temp_1 = x == 0 ? 0 : cmn[y][x - 1];
 					int temp_2 = y == 0 ? 0 : cmn[y - 1][x];
@@ -1018,7 +1025,8 @@
 		> Weak Reference Object
 
 		```java
-		WeakReference<StringBuilder> weakBuilder = new WeakReference<StringBuilder>(builder);
+		WeakReference<StringBuilder> weakBuilder = 
+								new WeakReference<StringBuilder>(builder);
 		```
 		
 		- Weak Reference Objects are not the default type/class of Reference Object and to be used they should be explicitly specified like in the above example. This kind of reference makes the reference object eligible for GC. That is, in case the only reference reachable for the StringBuilder object in memory is, actually, the weak reference, then the GC is allowed to garbage collect the StringBuilder object. When an object in memory is reachable only by Weak Reference Objects, it becomes automatically eligible for GC.
@@ -1184,6 +1192,7 @@
 
 * What are these `final`, `finally` and `finalize` keywords?
   - `final` is a keyword in the java language. It is used to apply restrictions on class, method and variable. Final class can't be inherited, final method can't be overridden and final variable value can't be changed.
+
 	```java
 	class FinalExample {
 		public static void main(String[] args) {
@@ -1192,7 +1201,9 @@
 		}
 	}
 	```
+	
   - `finally` is a code block and is used to place important code, it will be executed whether exception is handled or not.
+
 	```java
 	class FinallyExample {
 		public static void main(String[] args) {
@@ -1207,6 +1218,7 @@
 		}
 	}
 	```
+	
   - `Finalize` is a method used to perform clean up processing just before object is garbage collected.
 
 	```java
