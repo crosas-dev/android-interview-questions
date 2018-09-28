@@ -1025,8 +1025,7 @@
 		> Weak Reference Object
 
 		```java
-		WeakReference<StringBuilder> weakBuilder = 
-								new WeakReference<StringBuilder>(builder);
+		WeakReference<StringBuilder> weakBuilder = new WeakReference<StringBuilder>(builder);
 		```
 		
 		- Weak Reference Objects are not the default type/class of Reference Object and to be used they should be explicitly specified like in the above example. This kind of reference makes the reference object eligible for GC. That is, in case the only reference reachable for the StringBuilder object in memory is, actually, the weak reference, then the GC is allowed to garbage collect the StringBuilder object. When an object in memory is reachable only by Weak Reference Objects, it becomes automatically eligible for GC.
@@ -1436,6 +1435,21 @@ app:layout_constraintBottom_toBottomOf="@+id/view1"
 	```
 	
 	- this causes switching of activity from current context to the target activity. Explicit Intents can also be used to pass data to other activity using putExtra method and retrieved by target activity by getIntent().getExtras() methods.
+
+* What is a `ContentProvider`? 
+
+	- They encapsulate data and provide it to applications through the single ContentResolver interface. A content provider is only required if you need to share data between multiple applications. For example, the contacts data is used by multiple applications and must be stored in a content provider. If you don't need to share data amongst multiple applications you can use a database directly via SQLiteDatabase.
+
+	- When a request is made via a ContentResolver the system inspects the authority of the given URI and passes the request to the content provider registered with the authority. The content provider can interpret the rest of the URI however it wants. The UriMatcher class is helpful for parsing URIs.
+
+	- The primary methods that need to be implemented are:
+
+		- `onCreate()` which is called to initialize the provider.
+		- `query(Uri, String[], Bundle, CancellationSignal)` which returns data to the caller.
+		- `insert(Uri, ContentValues)` which inserts new data into the content provider.
+		- `update(Uri, ContentValues, String, String[])` which updates existing data in the content provider.
+		- `delete(Uri, String, String[])` which deletes data from the content provider.
+		- `getType(Uri)` which returns the MIME type of data in the content provider.
 
 * What is a `BroadcastReceiver`? [StackOverflow](https://stackoverflow.com/questions/5296987/what-is-broadcastreceiver-and-when-we-use-it)
 	- A broadcast receiver is a component that responds to system-wide broadcast announcements. Many broadcasts originate from the system—for example, a broadcast announcing that the screen has turned off, the battery is low, or a picture was captured. Applications can also initiate broadcasts—for example, to let other applications know that some data has been downloaded to the device and is available for them to use. Although broadcast receivers don't display a user interface, they may create a status bar notification to alert the user when a broadcast event occurs.
